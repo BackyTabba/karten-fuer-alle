@@ -47,7 +47,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
     .addTo(map);*/
 
     //leaflet-toolbar
-    
+	IOactions=[]
     var map = L.map('map').setView([51.961563,7.628202], 15),
 			drawnItems = new L.FeatureGroup().addTo(map),
 			editActions = [
@@ -85,6 +85,60 @@ L.Toolbar2.DrawAction.Polygon
 L.Toolbar2.DrawAction.Polyline
 //$Marker$
 L.Toolbar2.DrawAction.Marker
+//$open$
+var openGeojson = L.Toolbar2.Action.extend({
+				options: {
+					toolbarIcon: {
+						
+						html: '&#128194',
+						tooltip: 'Upload GeoJson'
+					},
+					
+				},
+
+				addHooks: function () {
+					console.log("L.geoJSON(JSON(temp0)).addTo(map)");
+					document.getElementById("load-file").click();
+					document.getElementById("load-file").addEventListener("change",function(){
+						var fr = new FileReader();
+						fr.onload=function(){
+							//console.log(fr.result);
+							layer=L.geoJSON(JSON.parse(fr.result)).addTo(map);
+							layer.on('click', function (event) {
+								new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+									actions: editActions
+								}).addTo(map, layer);
+							})
+							drawnItems.addLayer(layer);
+							}
+						fr.readAsText(this.files[0])
+					})
+				}
+
+			});
+
+IOactions=[...IOactions,openGeojson]
+//$save$
+var saveGeojson = L.Toolbar2.Action.extend({
+				options: {
+					toolbarIcon: { 
+						html: '&#x1F5AB;',
+						tooltip: 'Get GeoJson'
+					},
+					
+				},
+
+				addHooks: function () {
+
+					console.log(JSON.stringify(drawnItems.toGeoJSON()));
+					var toSave = encodeURIComponent(JSON.stringify(drawnItems.toGeoJSON()));
+					console.log(toSave);
+					window.open("data:application/octet-stream"+toSave);
+				}
+
+			});
+IOactions=[...IOactions,saveGeojson]
+
 //$end$
 ],
 		}).addTo(map);
@@ -100,6 +154,11 @@ L.Toolbar2.DrawAction.Marker
 				}).addTo(map, layer);
 			});
 		});
+//$end2$
+		new L.Toolbar2.Control({
+			position: 'topleft',
+			actions: IOactions
+		}).addTo(map);
 	
 
 </script>

@@ -4,7 +4,8 @@
 ## Backend
 - [x] Create GitHub and branches
 - [x] Cleaner code
-- [ ] Builded Build-docker-image
+- [x] Update index.html/input.txt
+- [o] Builded Build-docker-image
 - [ ] Ci/cd to aws
 - [ ] Domain operations before saving
 - [ ] View database data + recently changed
@@ -29,3 +30,4 @@
 - [ ] Anzahl der Farben ändern
 - [ ] Marker Farboption fixen
 - [ ] Testsuite?
+- [ ] besserer Auswahlprozess beim zusammenkopieren (Redundanzen reduzieren)
