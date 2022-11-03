@@ -1,0 +1,292 @@
+<html>
+<head>
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14=" crossorigin=""> -->
+    <!-- <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js" integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin=""></script> -->
+
+    <!-- leaflet-toolbar -->
+	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
+	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet-toolbar/dist/leaflet.toolbar.css" />
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"/>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>	
+    <link rel="stylesheet" href="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.css"/>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="/node_modules/leaflet/dist/leaflet-src.js"></script>
+	<script src="/node_modules/leaflet-toolbar/dist/leaflet.toolbar-src.js"></script>
+	<script src="/node_modules/leaflet-draw/dist/leaflet.draw-src.js"></script>
+    <script src="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.js"></script>
+	<script src="ColorPicker.js"></script>
+	<script src="/node_modules/leaflet-providers/leaflet-providers.js"></script>
+	<!-- <script src="/node_modules/file-dialog/file-dialog.min.js"></script> -->
+	<!-- <script src="/node_modules/FileSaver/FileSaver.js"></script> -->
+</head>
+<style>
+    html, body, #map { margin: 0; height: 100%; width: 100%;}
+</style>
+<div id="map"></div>
+<input type="file" id="load-file" style="display:none" accept=".geojson">
+<!--%0A neue Zeile; %2C Komma  encodeURI   accept=".geojson"-->
+<style>
+		 .leaflet-toolbar-icon .fa { color: rgb(74, 74, 74);
+            font-size: 0.9rem;} 
+		.leaflet-color-swatch { background-color: #fff
+        }
+        .leaflet-retina .leaflet-draw-toolbar.leaflet-draw-toolbar a{
+            display: flex; 
+            align-items: center;
+            justify-content: center; 
+            }
+		.leaflet-control-layers-base{
+			font-size: 15px;
+		}
+</style>
+<script>
+	//toolbar zu klein: https://stackoverflow.com/questions/56792059/which-leaflet-library-or-workaround-to-control-toolbar-size
+	//blurry Maps https://github.com/Leaflet/Leaflet/issues/6068
+/*var map = L.map('map').setView([51.505, -0.09], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);*/
+var latlng = L.latLng(51.508530,-0.076132);
+/*
+var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tooltip.'})
+    .addTo(map);*/
+
+    //leaflet-toolbar
+	console.log()
+	var baseMaps = {
+		"OpenTest": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+      }),
+		"Testmap1": L.tileLayer.provider("CartoDB.Positron"),
+		"Testmap2": L.tileLayer.provider("CartoDB.DarkMatter"),
+		"Testmap3": L.tileLayer.provider("CartoDB.Voyager"),
+		"OpenStreetMap Mapnik": L.tileLayer.provider("OpenStreetMap.Mapnik"),
+		"OpenTopoMap": L.tileLayer.provider("OpenTopoMap"),
+		"Stadia AlidadeSmoothDark": L.tileLayer.provider("Stadia.AlidadeSmoothDark"),
+		"Stadia OSMBright": L.tileLayer.provider("Stadia.OSMBright"),
+		"Esri World Imagery":L.tileLayer.provider('Esri.WorldImagery')
+
+	};
+    var map = L.map('map',{layers:Object.values(baseMaps)}).setView([41.7896,-87.5996], 15),
+			drawnItems = new L.FeatureGroup().addTo(map),
+			editActions = [
+                L.Toolbar2.EditAction.Popup.Edit,
+                L.Toolbar2.EditAction.Popup.Delete,
+				L.Toolbar2.Action.extendOptions({
+					toolbarIcon: { 
+						className: 'leaflet-color-picker', 
+						html: '<span class="fa fa-eyedropper"></span>' 
+					},
+					subToolbar: new L.Toolbar2({ actions: [
+						L.ColorPicker.extendOptions({ color: '#db1d0f' }),
+						L.ColorPicker.extendOptions({ color: '#025100' }),
+						L.ColorPicker.extendOptions({ color: '#ffff00' }),
+						L.ColorPicker.extendOptions({ color: '#0000ff' }),
+                        L.ColorPicker.extendOptions({ color: "#3388ff" })
+					]})
+				})
+			];
+
+		//L.layers(baseMaps).addTo(map);
+		var layerControl = L.control.layers(baseMaps).addTo(map);
+		//console.log("drawnItems",drawnItems.toGeoJSON());
+		/*var toolbar = L.Toolbar();
+   		toolbar.addToolbar(map);*/
+
+				//geojson hinzufügen: L.geoJSON(temp0).addTo(map)
+				//geojson bekommen: drawnItems.toGeoJSON 
+//_____________________________________
+/*
+		var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '© OpenStreetMap'
+		});
+
+		var streets = L.tileLayer(mapboxUrl, { id: 'mapbox/streets-v11', tileSize: 512, zoomOffset: -1, attribution: mapboxAttribution });
+
+		var map = L.map('map', {
+			center: [39.73, -104.99],
+			zoom: 10,
+			layers: [osm, cities]
+		});
+
+		var baseMaps = {
+			"OpenStreetMap": osm,
+			"Mapbox Streets": streets
+		};
+
+		var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+*/
+//_____________________________________
+
+
+
+		new L.Toolbar2.DrawToolbar({
+			position: 'topleft',
+            actions:[L.Toolbar2.DrawAction.Polygon,
+                    L.Toolbar2.DrawAction.Polyline,
+                    L.Toolbar2.DrawAction.Marker,
+					L.Toolbar2.DrawAction.Rectangle,
+					L.Toolbar2.DrawAction.Circle
+                ],
+		}).addTo(map);
+        //var toolbar = new L.Toolbar2.DrawToolbar(); // empty toolbar
+        
+		var MyCustomAction = L.Toolbar2.Action.extend({
+				options: {
+					toolbarIcon: { //&#9873;
+						//    &#128190;    &#128427;
+   // &#x1F5AB;
+
+   //&#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
+    
+						html: '&#x1F5AB;',
+						tooltip: 'Get GeoJson'
+					},
+					
+				},
+
+				addHooks: function () {
+
+					console.log(JSON.stringify(drawnItems.toGeoJSON()));
+					var toSave = encodeURIComponent(JSON.stringify(drawnItems.toGeoJSON()));
+					console.log(toSave);
+					//window.open("data:application/octet-stream,"+toSave,"_blank");
+					window.open("data:application/octet-stream"+toSave);
+					//fileDialog({ multiple: false, accept: 'image/*' }, files => {
+						// files contains an array of FileList
+					//})
+				}
+
+			});
+			var MyCustomAction2 = L.Toolbar2.Action.extend({
+				options: {
+					toolbarIcon: { //&#9873;
+						//    &#128190;    &#128427;
+   // &#x1F5AB;
+
+   //&#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
+    
+						html: '&#128194',
+						tooltip: 'Upload GeoJson'
+					},
+					
+				},
+
+				addHooks: function () {
+					console.log("L.geoJSON(JSON(temp0)).addTo(map)");
+					document.getElementById("load-file").click();
+					document.getElementById("load-file").addEventListener("change",function(){
+						var fr = new FileReader();
+						fr.onload=function(){
+							console.log(fr.result);
+							//L.geoJSON(JSON.parse(fr.result)).addTo(map) //funktioniert
+							/*console.log(JSON.parse(fr.result)["features"][0].geometry);
+							console.log(JSON.parse(fr.result).features[0].geometry);
+							console.log(JSON.parse(fr.result));*/
+
+							
+							layer=L.geoJSON(JSON.parse(fr.result)).addTo(map);
+							//JSON.parse(fr.result)
+
+							layer.on('click', function (event) {
+								new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+									actions: editActions
+								}).addTo(map, layer);
+							})
+							drawnItems.addLayer(layer);
+							//new L.FeatureGroup(JSON.parse(fr.result).features[0]).addTo(map)
+							//L.geoJSON(JSON.parse(fr.result)).addTo(map)
+							//L.geoJSON(JSON.parse(fr.result)).addTo(map)
+						}
+						fr.readAsText(this.files[0])
+					})
+				}
+
+			});
+
+			new L.Toolbar2.Control({
+				position: 'topleft',
+				actions: [MyCustomAction,MyCustomAction2]
+			}).addTo(map);
+        // var toolbar= L.Toolbar2.Control({
+        //     options: {
+        //         actions: [
+        //             L.Toolbar2.DrawAction.Polygon,
+        //             L.Toolbar2.DrawAction.Polyline,
+        //             L.Toolbar2.DrawAction.Marker,
+        //             L.Toolbar2.DrawAction.Rectangle,
+        //             L.Toolbar2.DrawAction.Circle
+        //         ],
+        //         className: 'leaflet-draw-toolbar'
+        //     }
+        // }).addTo(map);
+        // console.log(toolbar);
+        //toolbar.addTo(map);*/
+
+		//lokal abspeichern:
+		//https://websparrow.org/web/how-to-create-and-save-text-file-in-javascript
+		//lokal öffnen:
+		//https://stackoverflow.com/questions/3582671/how-to-open-a-local-disk-file-with-javascript
+		
+/*
+	const pickerOpts = {
+		types: [
+			{
+				description: 'Images',
+				accept: {
+					'image/*': ['.png', '.gif', '.jpeg', '.jpg']
+				}
+			},
+		],
+		excludeAcceptAllOption: true,
+		multiple: false
+	};
+
+	async function getTheFile() {
+		// open file picker
+		[fileHandle] = await window.showOpenFilePicker(pickerOpts);
+
+		// get file contents
+		const fileData = await fileHandle.getFile();
+	}
+
+	getTheFile();
+
+			function readSingleFile(e) {
+				var file = e.target.files[0];
+				if (!file) {
+					return;
+				}
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					var contents = e.target.result;
+					console.log(contents);
+				};
+				reader.readAsText(file);
+			}
+			readSingleFile();*/
+
+		map.on('draw:created', function(evt) {
+			var	type = evt.layerType,
+				layer = evt.layer;
+
+			drawnItems.addLayer(layer);
+
+			layer.on('click', function(event) {
+				new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+					actions: editActions
+				}).addTo(map, layer);
+			});
+		});
+	
+
+</script>
+</body>
+	  
+</html>

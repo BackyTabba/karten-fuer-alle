@@ -1,0 +1,48 @@
+<html>
+<a href=http://localhost:3000/overview>overview</a>
+<form action="/" method="POST" id="take">
+  <fieldset>
+    <legend>Choose your tool's features:</legend>
+    <div>
+      <input type="checkbox" id="start" name="start" value="start" checked readonly>
+      <label for="start">start</label>
+    </div>
+    <!-- <select name="map" id="map">
+      <option value="osm">osm</option>
+    </select> -->
+
+    <!-- <input type="checkbox" id="xxx" name="map[]=xxx" value="xxx"checked>
+    <label for="xxx">xxx</label> -->
+
+    <!-- https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects -->
+    <div>
+      <!-- <input type="checkbox" id="OpenStreetMap" name="map[]=OpenStreetMap" value="OpenStreetMap"checked>
+      <label for="OpenStreetMap">OpenStreetMap</label>
+      <input type="checkbox" id="Stadia.AlidadeSmoothDark" name="map[]=Stadia.AlidadeSmoothDark" value="Stadia.AlidadeSmoothDark"checked>
+      <label for="Stadia.AlidadeSmoothDark">Stadia.AlidadeSmoothDark</label>
+      <input type="checkbox" id="xxxy" name="map[]=xxxy" value="xxxy"checked>
+      <label for="xxxy">xxxy</label> -->
+
+    </div>
+    <div>
+      <input type="checkbox" id="Polygon" name="actions[]=Polygon" value="Polygon"checked>
+      <label for="Polygon">Polygon</label>
+      <input type="checkbox" id="Marker" name="actions[]=Marker" value="Marker" checked>
+      <label for="Marker">Marker</label>
+      <input type="checkbox" id="Rectangle" name="actions[]=Rectangle" value="Rectangle" checked>
+      <label for="Rectangle">Rectangle</label>
+      <input type="checkbox" id="Circle" name="actions[]=Circle" value="Circle" checked>
+      <label for="Circle">Circle</label>
+      <input type="checkbox" id="Polyline" name="actions[]=Polyline" value="Polyline" checked>
+      <label for="Polyline">Polyline</label>
+    </div>
+    <div>
+      <input type="checkbox" id="end" name="end" value="end" checked readonly>
+      <label for="end">end</label>
+    </div>
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </fieldset>
+</form>
+<html>
