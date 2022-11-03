@@ -3,7 +3,7 @@
 
 ## Backend
 - [x] Create GitHub and branches
-- [ ] Clean code
+- [x] Cleaner code
 - [ ] Builded Build-docker-image
 - [ ] Ci/cd to aws
 - [ ] Domain operations before saving
@@ -12,11 +12,20 @@
 - [ ] Ports and compose storage
 - [ ] Export and GitHub(?)
 - [ ] Mongodb persistent data
-- [ ] Testsuite?
 - [ ] Render sites
+- [ ] Loglevel
 
 ## Frontend
 - [ ] Fix frontend
+- [ ] Struktur der Datenbank definieren
+- [ ] Datenbankrouten anlegen
 - [ ] Store each element of Frontend in mongo
 - [ ] Check testdata
 - [ ] Advanced geospatial tool
+
+### Optional/Lowpriority
+- [ ] Aus Parameter und Datentyp autogenerate Auswahl-HTML-Datei
+- [ ] hübsche datei evtl header mit bootstrap?
+- [ ] Anzahl der Farben ändern
+- [ ] Marker Farboption fixen
+- [ ] Testsuite?
