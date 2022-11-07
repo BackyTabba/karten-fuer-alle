@@ -1,7 +1,8 @@
 version: "3"
 services:
   server:
-    image: "leem01/karten-fuer-alle"
+    image: leem_01/karten-fuer-alle
+    build: .
     hostname: server
     mem_limit: 128m
 
