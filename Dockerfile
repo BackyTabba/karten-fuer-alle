@@ -13,4 +13,4 @@ RUN npm install --legacy-peer-deps
 COPY . /app
 #container exposed network port number
 EXPOSE 3000
-CMD ["npm", "normal"]
+CMD ["npm", "run" , "normal"]
