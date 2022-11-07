@@ -5,7 +5,7 @@
 - [x] Create GitHub and branches
 - [x] Cleaner code
 - [x] Update index.html/input.txt
-- [x] ~~ Builded Build-docker-image ~~
+- [x]  ~~Builded Build-docker-image~~
 - [x] Ci/cd to aws
 - [ ] Docker ignore
 - [ ] Domain operations before saving
