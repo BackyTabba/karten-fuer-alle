@@ -6,7 +6,8 @@
 - [x] Cleaner code
 - [x] Update index.html/input.txt
 - [o] Builded Build-docker-image
-- [ ] Ci/cd to aws
+- [x] Ci/cd to aws
+- [ ] Docker ignore
 - [ ] Domain operations before saving
 - [ ] View database data + recently changed
 - [ ] Create docker composes and start them
