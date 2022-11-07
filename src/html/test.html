@@ -72,6 +72,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		"Esri World Imagery":L.tileLayer.provider('Esri.WorldImagery')
 
 	};
+	IOactions=[]
     var map = L.map('map',{layers:Object.values(baseMaps)}).setView([41.7896,-87.5996], 15),
 			drawnItems = new L.FeatureGroup().addTo(map),
 			editActions = [
@@ -137,7 +138,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		}).addTo(map);
         //var toolbar = new L.Toolbar2.DrawToolbar(); // empty toolbar
         
-		var MyCustomAction = L.Toolbar2.Action.extend({
+		var saveGeojson = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { //&#9873;
 						//    &#128190;    &#128427;
@@ -164,14 +165,14 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				}
 
 			});
-			var MyCustomAction2 = L.Toolbar2.Action.extend({
+			var openGeojson = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { //&#9873;
 						//    &#128190;    &#128427;
    // &#x1F5AB;
 
    //&#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
-    
+						
 						html: '&#128194',
 						tooltip: 'Upload GeoJson'
 					},
@@ -209,11 +210,14 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				}
 
 			});
-
+			
+			IOactions=[...IOactions,openGeojson]
+			IOactions=[...IOactions,saveGeojson]
 			new L.Toolbar2.Control({
 				position: 'topleft',
-				actions: [MyCustomAction,MyCustomAction2]
+				actions: IOactions
 			}).addTo(map);
+
         // var toolbar= L.Toolbar2.Control({
         //     options: {
         //         actions: [

@@ -1,28 +1,27 @@
-const { match } = require('assert');
 const express = require('express');
-const { CLIENT_RENEG_WINDOW } = require('tls');
 const app= express()
 var mongoose= require('mongoose');
 const { env } = require('process');
 app.use(express.urlencoded());
 var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 var fs = require('fs')
-  , filename = __dirname+"/src/html/input.txt";
-var parametercontent={}
 const keys = require("./keys");
 const { mongoAdmin, mongoAdminPW } = require('./keys');
 var morgan = require('mongoose-morgan');
+
+//todo Morgan vernünftig zum Laufen bringen
 morgan.token('date', (req, res, tz) => {
     return moment().tz(tz).format('YYYY-MM-DD HH:mm:ss');
     })
-    morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-time ms');
-    //app.use(morgan('myformat'))
+morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-time ms');
+//app.use(morgan('myformat'))
 
-initiate();
+//Variablendeklaration
+filename = __dirname+"/src/html/input.txt";
+var parametercontent={}
+initiateParametercontent();
 
-
-
-console.log("Hallo Welt!")
+//Todo: Datenbankschemata und Models definieren und anlegen
 const DBschema = new mongoose.Schema({
     Operations: {
          type: String,
@@ -33,28 +32,31 @@ const DBschema = new mongoose.Schema({
 
 main().catch(err => console.log(err));
 
-async function main() {
+async function main() { //TESTZONE!
  mongoose.connection.on('error', err => {
   console.log(err);
 });
 await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: 'testDB'}).then(()=>{console.log("Mongoose Connection successful")});
-
-  
+//Schema
   const kittySchema = new mongoose.Schema({
     name: String
   });
+
   kittySchema.methods.speak = function speak() {
     const greeting = this.name
       ? "Meow name is " + this.name
       : "I don't have a name";
     console.log(greeting);
   };
+//Model
     const Kitten = mongoose.model('Kitten', kittySchema);
     const silence = new Kitten({ name: 'Silence' });
     console.log(silence.name); // 'Silence'
     const fluffy = new Kitten({ name: 'fluffy' });
     fluffy.speak(); // "Meow name is fluffy"
+//Abfrage
     await Kitten.find({ name: /^fluff/ }).then((abc)=>(console.log(abc)));
+//EigenerAblauf
     var MySchema= new mongoose.Schema({
         title: String,
         cont: String,
@@ -65,23 +67,17 @@ await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',
    blablacar.save();
 }
 
-
-
- //console.log("mongoose.connect('mongodb://localhost/'"+keys.mongoHost+"\":\""+keys.mongoPort+")");
- //mongoose.connect('mongodb://localhost/'+keys.mongoHost+":"+keys.mongoPort+"/Test");
 app.use('/node_modules', express.static(__dirname+"/node_modules/"));
 app.use("/",express.static(__dirname+"/src/html/"));
 app.use("/leaflet-providers",express.static(__dirname+"/node_modules/leaflet-providers/leaflet-providers.js"))
 
 app.get("/index",(req,res,next)=>{
-    //res.send(req.params.id)
     res.sendFile(__dirname+"/src/html/index.html")
     })
 app.get("/overview",(req,res,next)=>{
     res.sendFile(__dirname+"/src/html/overview.html")
     })
 app.get("/",(req,res,next)=>{
-    //res.send(req.params.id)
     res.redirect("/index");
     })
 app.get("/test",(req,res,next)=>{
@@ -101,53 +97,46 @@ app.post("/",(req,res)=>{
     res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")
     })
+//DB-Routen
 
 
-
-function initiate(){
+/**
+ * Schreibt Inhalte in die Variable parametercontent aus der Inputdatei (Speicherort definiert in der Variable "filename")
+ */
+function initiateParametercontent(){
     fs.readFile(filename, 'utf8', function(err, data) {
         if (err) throw err;
-        //console.log('OK: ' + filename);
-        //console.log(typeof(data))
+        //Findet Marker nach dem Schema //$Marker$
         matches=[...data.matchAll(/\/\/\$(.*)\$/gm)]
-        //console.log(`Hello ${matches[1]} ${matches[1]}`);
-        /*console.log(matches[1][0],matches[1][1],matches[1].index,matches[0][0].length,)
-        console.log(data.slice(matches[0].index+matches[0][0].length+2,matches[1].index-2))
-        console.log(data.slice(matches[1].index+matches[1][0].length+2,matches[2].index-2))*/
         cfg=matches[1][1]
         data=data+"\r\n"
-        //console.log(data)
+        //Setzt die Länge des Inhalts des Markers
         for(i=0;i<matches.length;i++){
-            //das geht bestimmt irgendwie besser als mit if...
             if(i+1>=matches.length){
-                c=data.length
+                contentLength=data.length
             }else{
-                c=matches[i+1].index //\r\n
+                contentLength=matches[i+1].index
             }
-            //https://stackoverflow.com/questions/2241875/how-to-create-an-object-property-from-a-variable-value-in-javascript
-            parametercontent={...parametercontent,[matches[i][1]]:data.slice(matches[i].index+matches[i][0].length+2,c)}
+            //Sliced matches auf das Format {Markername:  Inhalt des Markers} und speichert es in parametercontent
+            //Hilfreich https://stackoverflow.com/questions/2241875/how-to-create-an-object-property-from-a-variable-value-in-javascript
+            parametercontent={...parametercontent,[matches[i][1]]:data.slice(matches[i].index+matches[i][0].length+2,contentLength)}
         }
-        //console.log(parametercontent)
-
       });
 }
+/**
+ * Schlägt die Werte der Variable param in parametercontent nach und schreibt die Inhalte in eine Datei
+ * @param {*} param 
+ */
 function safe(param){
         //neue Datei anlegen und Auswahl reinkopieren
-        //outstring=parametercontent[...params]
         output=""
-        //console.log("param in safe: ",param)
-        //console.log("Object.getOwnPropertyNames(",Object.getOwnPropertyNames(param))
-        for (x in param) {
+        for (x in param) { //Fängt manche Fehler bei der Übermittlung ab, param stammt mehr oder weniger direkt aus der HTML-Auswahldatei. Schreibt, falls alles in Ordnung (String), den String direkt in Output
             if (parametercontent[x]!=undefined&&typeof(x)=="string"){
                 output+=parametercontent[x]
             }
-            //console.log(typeof(param[x]),param[x])
-            if(typeof(param[x])=="object"){
+            if(typeof(param[x])=="object"){ //Falls param ein Objekt enthält (=select-Feld in index.html)
                 i=0;
-                for (y of param[x]){
-                    /*console.log("parametercontent[y]!=undefined&&typeof(x)==\"string\"",parametercontent[y]!=undefined&&typeof(x)=="string")
-                    console.log("typeof(x)==\"string\"",typeof(y)=="string")
-                    console.log("parametercontent[y]!=undefined",parametercontent[y]!=undefined,y)*/
+                for (y of param[x]){ //Jeden String des Objekts nachschlagen und an output anhängen
                     if (parametercontent[y]!=undefined&&typeof(y)=="string"){
                         output+=parametercontent[y]
                     }
@@ -158,10 +147,9 @@ function safe(param){
                 }
             }
         }
-        console.log(output)
         fs.writeFile('src\\html\\output.html', output, function (err) {
             if (err) throw err;
-            console.log('Saved!');
+            console.log('Saved output.html!');
             });
 }
 process.on('SIGTERM', function () {
@@ -169,9 +157,3 @@ process.on('SIGTERM', function () {
       process.exit(0);
     });
 })
-//ToDo
-//vue oä für overview
-//hübsche datei evtl header mit bootstrap?
-//import export Funktion
-//Anzahl der Farben
-//Marker farbig machen
