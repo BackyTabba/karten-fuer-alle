@@ -1,39 +1,31 @@
 version: "3"
 services:
   server:
-    image: "leem01/karten-fuer-alle"
-    hostname: server
-    mem_limit: 128m
-    portMappings: {
-      "containerPort":3000
-      "hostPort":3000
-    }
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile.dev
-    # ports:
-    #   - "3000:3000"
-    # volumes:
-    #   - /app/node_modules
-    #   - .:/app
+    container_name: kfa-server
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app
     environment:
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
-  # tests:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - /app/node_modules
-  #     - .:/app
-  #   command: ["npm","run","test"]
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    command: ["npm","run","test"]
   mongo:
     image: mongo
-    hostname: mongo
     restart: always
-    mem_limit: 128m
     ports:
       - "27017:27017"
     environment:
@@ -42,8 +34,6 @@ services:
 
   mongo-express:
     image: mongo-express
-    hostname: mongo-express
-    mem_limit: 128m
     restart: always
     ports:
       - 8081:8081
