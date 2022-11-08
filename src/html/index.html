@@ -4,6 +4,10 @@
   <fieldset>
     <legend>Choose your tool's features:</legend>
     <div>
+      <label for="schema">Name (ohne Leerzeichen, bei Bedarf - benutzen)</label>
+      <input type="text" id="ToolName" name="ToolName">
+    </div>
+    <div>
       <input type="checkbox" id="start" name="start" value="start" checked readonly>
       <label for="start">start</label>
     </div>
@@ -49,8 +53,11 @@
   </div>
   <input type="checkbox" id="end2" name="end2" value="end2" checked readonly>
   <label for="end2">end2</label>
-</div>
+  </div>
     <div>
+      <label for="schema">Schema (mit Semikolons trennen)</label>
+      <input type="text" id="schema" name="schema">
+    </div>
     <div>
       <button type="submit">Submit</button>
     </div>

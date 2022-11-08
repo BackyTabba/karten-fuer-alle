@@ -21,11 +21,30 @@
 	<script src="/node_modules/leaflet-providers/leaflet-providers.js"></script>
 	<!-- <script src="/node_modules/file-dialog/file-dialog.min.js"></script> -->
 	<!-- <script src="/node_modules/FileSaver/FileSaver.js"></script> -->
-</head>
 <style>
-    html, body, #map { margin: 0; height: 100%; width: 100%;}
+    html, body, #map { margin: 0; height: 100%; width: 100%; flex-flow:row}
+	.fantasyclass{
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	.overlay{
+		position: absolute;
+		top: 12px;
+		left: 100px;
+		z-index: 410;
+		background-color: #fff;
+		font-size: 18px;
+		border-radius: 2px;
+		padding: 0px 10px;
+
+	}
 </style>
-<div id="map"></div>
+
+<div id="map">
+	<div class="overlay">Tool-Überschrift lalala</div>
+</div>
+
 <input type="file" id="load-file" style="display:none" accept=".geojson">
 <!--%0A neue Zeile; %2C Komma  encodeURI   accept=".geojson"-->
 <style>
@@ -291,6 +310,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		map.on('draw:created', function(evt) {
 			var	type = evt.layerType,
 				layer = evt.layer;
+
 
 			drawnItems.addLayer(layer);
 
