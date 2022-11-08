@@ -7,13 +7,13 @@ var server = app.listen(3000, () => console.log("listening on port " + 3000 + "!
 var fs = require('fs')
 const keys = require("./keys");
 const { mongoAdmin, mongoAdminPW } = require('./keys');
-var morgan = require('mongoose-morgan');
+/*var morgan = require('mongoose-morgan');
 
 //todo Morgan vernünftig zum Laufen bringen
 morgan.token('date', (req, res, tz) => {
     return moment().tz(tz).format('YYYY-MM-DD HH:mm:ss');
     })
-morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-time ms');
+morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-time ms');*/
 //app.use(morgan('myformat'))
 
 //Variablendeklaration

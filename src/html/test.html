@@ -158,7 +158,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 					var toSave = encodeURIComponent(JSON.stringify(drawnItems.toGeoJSON()));
 					console.log(toSave);
 					//window.open("data:application/octet-stream,"+toSave,"_blank");
-					window.open("data:application/octet-stream"+toSave);
+					window.open("data:application/octet-stream,"+toSave,"_blank");
 					//fileDialog({ multiple: false, accept: 'image/*' }, files => {
 						// files contains an array of FileList
 					//})
@@ -167,7 +167,8 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 			});
 			var openGeojson = L.Toolbar2.Action.extend({
 				options: {
-					toolbarIcon: { //&#9873;
+					toolbarIcon: { 
+						//&#9873;
 						//    &#128190;    &#128427;
    // &#x1F5AB;
 
@@ -192,14 +193,25 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 							console.log(JSON.parse(fr.result));*/
 
 							
-							layer=L.geoJSON(JSON.parse(fr.result)).addTo(map);
-							//JSON.parse(fr.result)
-
-							layer.on('click', function (event) {
+							//layer=L.geoJSON(JSON.parse(fr.result)).addTo(map);
+							console.log(JSON.parse(fr.result));
+							layer=L.geoJSON(JSON.parse(fr.result),{onEachFeature: function (feature, layer) {
+								layer.on('click', function (event) {
 								new L.Toolbar2.EditToolbar.Popup(event.latlng, {
 									actions: editActions
 								}).addTo(map, layer);
 							})
+							}});
+							layer.addTo(map);
+							
+							//JSON.parse(fr.result)
+
+							/*layer.on('click', function (event) {
+								new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+									actions: editActions
+								}).addTo(map, layer);
+							})*/
+							
 							drawnItems.addLayer(layer);
 							//new L.FeatureGroup(JSON.parse(fr.result).features[0]).addTo(map)
 							//L.geoJSON(JSON.parse(fr.result)).addTo(map)
