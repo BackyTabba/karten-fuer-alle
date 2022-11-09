@@ -93,6 +93,7 @@ app.post("/upload",(req,res)=>{
     })
 app.post("/",(req,res)=>{
     console.log("Post incoming: ",req.body)
+    console.log(req.body.content)
     safe(req.body);
     res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")

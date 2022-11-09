@@ -74,12 +74,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		new L.Toolbar2.DrawToolbar({
 			position: 'topleft',
             actions:[
-L.Toolbar2.DrawAction.Polygon
-,L.Toolbar2.DrawAction.Marker
-,L.Toolbar2.DrawAction.Rectangle
-,L.Toolbar2.DrawAction.Rectangle
-,L.Toolbar2.DrawAction.Polyline
-],
+,],
 		}).addTo(map);
 		map.on('draw:created', function(evt) {
 			var	type = evt.layerType,
@@ -93,7 +88,7 @@ L.Toolbar2.DrawAction.Polygon
 				}).addTo(map, layer);
 			});
 		});
-var openGeojson = L.Toolbar2.Action.extend({
+,var openGeojson = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: {
 						
@@ -125,7 +120,7 @@ var openGeojson = L.Toolbar2.Action.extend({
 			});
 
 IOactions=[...IOactions,openGeojson]
-var saveGeojson = L.Toolbar2.Action.extend({
+,var saveGeojson = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { 
 						html: '&#x1F5AB;',
@@ -145,7 +140,7 @@ var saveGeojson = L.Toolbar2.Action.extend({
 			});
 IOactions=[...IOactions,saveGeojson]
 
-		new L.Toolbar2.Control({
+,		new L.Toolbar2.Control({
 			position: 'topleft',
 			actions: IOactions
 		}).addTo(map);
@@ -154,3 +149,4 @@ IOactions=[...IOactions,saveGeojson]
 </script>
 </body>
 </html>
+,
