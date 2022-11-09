@@ -39,6 +39,12 @@ async function main() { //TESTZONE!
   console.log(err);
 });
 await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: 'testDB'}).then(()=>{console.log("Mongoose Connection successful")});
+
+/*## nameApplikation_content
+- Id: Leafletid
+- objekt: Object
+- If existing update, else create?*/
+
 //Schema
   const kittySchema = new mongoose.Schema({
     name: String
@@ -93,6 +99,7 @@ app.get("/params",(req,res)=>{
 app.post("/upload",(req,res)=>{
     console.log("Upload incoming: ",req.body)
     })
+
 app.post("/",(req,res)=>{
     console.log("Post incoming: ",req.body)
     safe(req.body.content)
@@ -156,12 +163,11 @@ function safe(param){
                 //console.log(x,typeof(x))
                 output+=parametercontent[x]
             }
-           // console.log(x, parameterorder[x],'typeof(parameterorder[x])==Object',typeof(parameterorder[x])==Object,typeof(parameterorder[x]))
             if(x instanceof Object){ //Falls parameterorder ein Objekt enthält
                 i=0;
                 for (y of x){ //Jeden String des Objekts nachschlagen und an output anhängen
-                    //console.log("object durchiterieren:", y, typeof(y), typeof(y)=="string")
-                    if (y!=undefined&&typeof(y)=="string"){
+                    //schönere Variante mit Iterator umsetzen? https://robdodson.me/posts/javascript-design-patterns-iterator/
+                    if (y!=undefined&&typeof(y)=="string"&&param.actions[y]=="true"){//unschön weil actions vorgegeben werden muss, da array mit object verglichen wird und das object einen namen hat, den das array nicht kennen kann
                         output+=parametercontent[y]
                     }
                     if(i<x.length-1){
@@ -173,13 +179,49 @@ function safe(param){
         }
        // console.log(parametercontent)
 
-
-
         fs.writeFile('src\\html\\output.html', output, function (err) {
             if (err) throw err;
             console.log('Saved output.html!');
             });
 }
+function Tool(ToolName, schema,content){
+    this.name=ToolName;
+    this.schema=schema;
+    this.content=content;
+    this.createOutputHTML()= function(...args){
+        output=""
+        this.outputString=output;
+
+        for(x of parameterorder){ // parameterorder=["start",["Polygon","Marker","Rectangle","Circle","Polyline"],"end","open","save","end2"]
+             if(this.content[x]=="true"){
+                 output+=parametercontent[x]
+             }
+             if(x instanceof Object){ //Falls parameterorder ein Objekt enthält aka ["Polygon","Marker","Rectangle","Circle","Polyline"]
+                 i=0;
+                 for (y of x){ //Jeden String des Objekts nachschlagen und an output anhängen
+                    //schönere Variante mit Iterator umsetzen? https://robdodson.me/posts/javascript-design-patterns-iterator/
+                     if (y!=undefined&&typeof(y)=="string"&&this.content.actions[y]=="true"){ //unschön weil actions vorgegeben werden muss, da array mit object verglichen wird und das object einen namen hat, den das array nicht kennen kann
+                         output+=parametercontent[y]
+                     }
+                     if(i<Object.keys(this.content.actions).length-1){
+                         output+=","
+                     }
+                     i++;
+                 }
+             }
+         }
+         return output;
+    }
+    this.save()=function(){
+        fs.writeFile('src\\html\\output.html', this.createOutputHTML(), function (err) {
+            if (err) throw err;
+            console.log('Saved output.html!');
+            });
+    }
+}
+
+
+
 process.on('SIGTERM', function () {
     server.close(function () {
       process.exit(0);
