@@ -4,6 +4,7 @@
   <fieldset>
     <legend>Choose your tool's features:</legend>
     <div>
+<<<<<<< Updated upstream
       <label for="schema">Name (ohne Leerzeichen, bei Bedarf - benutzen)</label>
       <input type="text" id="ToolName" name="ToolName">
     </div>
@@ -11,6 +12,7 @@
       <input type="checkbox" id="start" name="start" value="start" checked readonly>
 =======
       <input type="checkbox" id="start" name="content[][]" value="start" checked readonly>
+>>>>>>> Stashed changes
       <label for="start">start</label>
     </div>
     <!-- <select name="map" id="map">
@@ -31,29 +33,29 @@
 
     </div>
     <div>
-      <input type="checkbox" id="Polygon" name="actions[]=Polygon" value="Polygon"checked>
+      <input type="checkbox" id="Polygon" name="content[][actions]" value="Polygon"checked>
       <label for="Polygon">Polygon</label>
-      <input type="checkbox" id="Marker" name="actions[]=Marker" value="Marker" checked>
+      <input type="checkbox" id="Marker" name="content[][actions]" value="Marker" checked>
       <label for="Marker">Marker</label>
-      <input type="checkbox" id="Rectangle" name="actions[]=Rectangle" value="Rectangle" checked>
+      <input type="checkbox" id="Rectangle" name="content[][actions]" value="Rectangle" checked>
       <label for="Rectangle">Rectangle</label>
-      <input type="checkbox" id="Circle" name="actions[]=Circle" value="Circle" checked>
+      <input type="checkbox" id="Circle" name="content[][actions]" value="Circle" checked>
       <label for="Circle">Circle</label>
-      <input type="checkbox" id="Polyline" name="actions[]=Polyline" value="Polyline" checked>
+      <input type="checkbox" id="Polyline" name="content[][actions]" value="Polyline" checked>
       <label for="Polyline">Polyline</label>
     </div>
 
-      <input type="checkbox" id="end" name="end" value="end" checked readonly>
+      <input type="checkbox" id="end" name="content[][]" value="end" checked readonly>
       <label for="end">end</label>
     </div>
     <div>
-      <input type="checkbox" id="open" name="open" value="open" checked readonly>
+      <input type="checkbox" id="open" name="content[][]" value="open" checked readonly>
       <label for="open">open</label>
-      <input type="checkbox" id="save" name="save" value="save" checked readonly>
+      <input type="checkbox" id="save" name="content[][]" value="save" checked readonly>
       <label for="save">save</label>
     </div>
   </div>
-  <input type="checkbox" id="end2" name="end2" value="end2" checked readonly>
+  <input type="checkbox" id="end2" name="content[][]" value="end2" checked readonly>
   <label for="end2">end2</label>
   </div>
     <div>
