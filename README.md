@@ -22,13 +22,16 @@
 - [ ] Fix frontend
     - [x] fix bug with double rectangle
     - [x] fix popups
-- [ ] Struktur der Datenbank definieren
-- [ ] Datenbankrouten anlegen
-- [ ] Store each element of Frontend in mongo
+    - [ ] marker color
+- [x] Struktur der Datenbank definieren
+- [ ] Struktur der Datenbank umsetzen
+- [ ] Store each element of Frontend in mongo (events)
 - [ ] Check testdata
 - [ ] Advanced geospatial tool
 
 ### Optional/Lowpriority
+- [ ] Parameter in Datenbank
+- [ ] Datenbankrouten anlegen
 - [ ] Aus Parameter und Datentyp autogenerate Auswahl-HTML-Datei
 - [ ] hübsche datei evtl header mit bootstrap?
 - [ ] Anzahl der Farben ändern
