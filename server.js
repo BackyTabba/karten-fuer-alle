@@ -38,6 +38,7 @@ async function main() { //TESTZONE!
  mongoose.connection.on('error', err => {
   console.log(err);
 });
+
 await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: 'testDB'}).then(()=>{console.log("Mongoose Connection successful")});
 
 /*## nameApplikation_content
@@ -46,6 +47,10 @@ await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',
 - If existing update, else create?*/
 
 //Schema
+  const toolSchema = new mongoose.Schema({
+    Id: Leafletid
+    objekt: Object
+  });
   const kittySchema = new mongoose.Schema({
     name: String
   });
@@ -108,6 +113,7 @@ app.post("/",(req,res)=>{
     /*res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")*/
     res.redirect("/output.html")
+    
     })
 //DB-Routen
 
