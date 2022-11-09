@@ -102,9 +102,12 @@ app.post("/upload",(req,res)=>{
 
 app.post("/",(req,res)=>{
     console.log("Post incoming: ",req.body)
-    safe(req.body.content)
-    res.send("<html> <form action=\"/output.html\">"
-    +"<input type=\"submit\" value=\"Vorschau\" /></form>")
+    currentTool = new Tool(req.body);
+    //save(req.body.content)
+    //res.send(currentTool.createOutputHTML())
+    /*res.send("<html> <form action=\"/output.html\">"
+    +"<input type=\"submit\" value=\"Vorschau\" /></form>")*/
+    res.redirect("/output.html")
     })
 //DB-Routen
 
@@ -136,7 +139,7 @@ function initiateParametercontent(){
  * Schlägt die Werte der Variable param in parametercontent nach und schreibt die Inhalte in eine Datei
  * @param {*} param 
  */
-function safe(param){
+function save(param){
         //neue Datei anlegen und Auswahl reinkopieren
         output=""
        /* for (x of param) { //Fängt manche Fehler bei der Übermittlung ab, param stammt mehr oder weniger direkt aus der HTML-Auswahldatei. Schreibt, falls alles in Ordnung (String), den String direkt in Output
@@ -170,7 +173,7 @@ function safe(param){
                     if (y!=undefined&&typeof(y)=="string"&&param.actions[y]=="true"){//unschön weil actions vorgegeben werden muss, da array mit object verglichen wird und das object einen namen hat, den das array nicht kennen kann
                         output+=parametercontent[y]
                     }
-                    if(i<x.length-1){
+                    if(i<Object.keys(param.actions).length-1){
                         output+=","
                     }
                     i++;
@@ -184,11 +187,12 @@ function safe(param){
             console.log('Saved output.html!');
             });
 }
-function Tool(ToolName, schema,content){
-    this.name=ToolName;
-    this.schema=schema;
-    this.content=content;
-    this.createOutputHTML()= function(...args){
+function Tool(param){
+    this.name=param.ToolName;
+    this.schema=param.schema;
+    this.content=param.content;
+    this.OutputHTML="";
+    this.createOutputHTML= function(...args){
         output=""
         this.outputString=output;
 
@@ -210,14 +214,19 @@ function Tool(ToolName, schema,content){
                  }
              }
          }
+         this.OutputHTML=output;
          return output;
     }
-    this.save()=function(){
-        fs.writeFile('src\\html\\output.html', this.createOutputHTML(), function (err) {
+    this.save=function(){
+        if(this.OutputHTML==""){
+            this.createOutputHTML()
+        }
+        fs.writeFile('src\\html\\output.html',this.OutputHTML , function (err) {
             if (err) throw err;
             console.log('Saved output.html!');
             });
     }
+    this.save();
 }
 
 
