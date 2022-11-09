@@ -2,7 +2,7 @@
 ## Toolkit_createdTools
 - Name
 - Parameter (vielleicht primärschlüssel?)
-o	Wenn schon existiert, name hinzufügen?
+- Wenn schon existiert, name hinzufügen?
 ## __Toolkit_parameter__
 - parameterName
 - parameterContent
