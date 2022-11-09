@@ -7,6 +7,7 @@
 - [x] Update index.html/input.txt
 - [ ]  ~~Builded Build-docker-image~~
 - [x] Ci/cd to aws
+- [x] überarbeitung der internen Datenstruktur (parameterorder serverside, content-array clientside (+server-side) )
 - [ ] Docker ignore
 - [ ] Domain operations before saving
 - [ ] View database data + recently changed
@@ -19,6 +20,8 @@
 
 ## Frontend
 - [ ] Fix frontend
+    - [x] fix bug with double rectangle
+    - [x] fix popups
 - [ ] Struktur der Datenbank definieren
 - [ ] Datenbankrouten anlegen
 - [ ] Store each element of Frontend in mongo

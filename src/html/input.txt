@@ -78,7 +78,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 //$Rectangle$
 L.Toolbar2.DrawAction.Rectangle
 //$Circle$
-L.Toolbar2.DrawAction.Rectangle
+L.Toolbar2.DrawAction.Circle
 //$Polygon$
 L.Toolbar2.DrawAction.Polygon
 //$Polyline$
