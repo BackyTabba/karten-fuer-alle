@@ -7,6 +7,7 @@ var server = app.listen(3000, () => console.log("listening on port " + 3000 + "!
 var fs = require('fs')
 const keys = require("./keys");
 const { mongoAdmin, mongoAdminPW } = require('./keys');
+const { type } = require('os');
 /*var morgan = require('mongoose-morgan');
 
 //todo Morgan vernünftig zum Laufen bringen
@@ -19,6 +20,7 @@ morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-ti
 //Variablendeklaration
 filename = __dirname+"/src/html/input.txt";
 var parametercontent={}
+var parameterorder=["start",["Polygon","Marker","Rectangle","Circle","Polyline"],"end","open","save","end2"]
 initiateParametercontent();
 
 //Todo: Datenbankschemata und Models definieren und anlegen
@@ -93,8 +95,7 @@ app.post("/upload",(req,res)=>{
     })
 app.post("/",(req,res)=>{
     console.log("Post incoming: ",req.body)
-    console.log(req.body.content)
-    safe(req.body);
+    safe(req.body.content)
     res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")
     })
@@ -131,7 +132,7 @@ function initiateParametercontent(){
 function safe(param){
         //neue Datei anlegen und Auswahl reinkopieren
         output=""
-        for (x in param) { //Fängt manche Fehler bei der Übermittlung ab, param stammt mehr oder weniger direkt aus der HTML-Auswahldatei. Schreibt, falls alles in Ordnung (String), den String direkt in Output
+       /* for (x of param) { //Fängt manche Fehler bei der Übermittlung ab, param stammt mehr oder weniger direkt aus der HTML-Auswahldatei. Schreibt, falls alles in Ordnung (String), den String direkt in Output
             if (parametercontent[x]!=undefined&&typeof(x)=="string"){
                 output+=parametercontent[x]
             }
@@ -147,7 +148,33 @@ function safe(param){
                     i++;
                 }
             }
+        }*/
+        for(x of parameterorder){
+           // console.log('param['+x+']=="true"',param[x]=="true",typeof(x),x)
+            if(param[x]=="true"){
+                //output+=parametercontent[x]
+                //console.log(x,typeof(x))
+                output+=parametercontent[x]
+            }
+           // console.log(x, parameterorder[x],'typeof(parameterorder[x])==Object',typeof(parameterorder[x])==Object,typeof(parameterorder[x]))
+            if(x instanceof Object){ //Falls parameterorder ein Objekt enthält
+                i=0;
+                for (y of x){ //Jeden String des Objekts nachschlagen und an output anhängen
+                    //console.log("object durchiterieren:", y, typeof(y), typeof(y)=="string")
+                    if (y!=undefined&&typeof(y)=="string"){
+                        output+=parametercontent[y]
+                    }
+                    if(i<x.length-1){
+                        output+=","
+                    }
+                    i++;
+                }
+            }
         }
+       // console.log(parametercontent)
+
+
+
         fs.writeFile('src\\html\\output.html', output, function (err) {
             if (err) throw err;
             console.log('Saved output.html!');
