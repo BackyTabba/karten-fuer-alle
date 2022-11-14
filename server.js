@@ -3,11 +3,30 @@ const app= express()
 var mongoose= require('mongoose');
 const { env } = require('process');
 app.use(express.urlencoded());
-var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+//var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 var fs = require('fs')
 const keys = require("./keys");
 const { mongoAdmin, mongoAdminPW } = require('./keys');
 const { type } = require('os');
+const { throws } = require('assert');
+
+var port=3000
+server.listen(port, () => {
+    console.log("listening on port " + port + "! :)");
+  });
+
+  //socket.io
+  io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+  });
+
 /*var morgan = require('mongoose-morgan');
 
 //todo Morgan vernünftig zum Laufen bringen
@@ -19,8 +38,32 @@ morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-ti
 
 //Variablendeklaration
 filename = __dirname+"/src/html/input.txt";
+var content, history, domainOperations;
 var parametercontent={}
 var parameterorder=["start",["Polygon","Marker","Rectangle","Circle","Polyline"],"end","open","save","end2"]
+
+var incomingCall={
+    ToolName: 'Template',
+    content: {
+      start: 'true',
+      actions: {
+        Polygon: 'true',
+        Marker: 'true',
+        Rectangle: 'true',
+        Circle: 'true',
+        Polyline: 'true'
+      },
+      end: 'true',
+      open: 'true',
+      save: 'true',
+      end2: 'true'
+    },
+    schema: ['Asave','Bsave','Csave','Dsave']
+  }
+  TempTool= new Tool(incomingCall)
+
+
+
 initiateParametercontent();
 
 //Todo: Datenbankschemata und Models definieren und anlegen
@@ -38,7 +81,7 @@ async function main() { //TESTZONE!
  mongoose.connection.on('error', err => {
   console.log(err);
 });
-
+var connections =[]
 await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: 'testDB'}).then(()=>{console.log("Mongoose Connection successful")});
 
 /*## nameApplikation_content
@@ -46,9 +89,10 @@ await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',
 - objekt: Object
 - If existing update, else create?*/
 
+
 //Schema
   const toolSchema = new mongoose.Schema({
-    Id: Leafletid
+    //Id: Leafletid,
     objekt: Object
   });
   const kittySchema = new mongoose.Schema({
@@ -101,13 +145,57 @@ app.get("/params",(req,res)=>{
     console.log(parametercontent)
     res.redirect("/")
 })
+app.post("/test",(req,res)=>{
+    console.log("test incoming: ",req.body)
+})
+app.delete("/upload",(req,res)=>{
+    console.log("incoming delete order",req.body)
+    TempTool.DB.content.deleteOne({_id:req.body._id},(err,docs)=>{console.log(err,docs)})
+})
+app.get("/schema",(req,res)=>{
+    console.log("schema requiest")
+    TempTool.DB.DataDatadomainOperations.find({},(err,docs)=>{console.log("..sending schema..");res.send(docs)})
+})
+app.get("/upload",(req,res)=>{
+    TempTool.EtablishConnection();
+    TempTool.DB.content.find({}, function (err, docs) {res.send(docs)})
+    //console.log(data)
+    //res.send(data);
+})
 app.post("/upload",(req,res)=>{
-    console.log("Upload incoming: ",req.body)
+    /*console.log("Upload incoming: ",req.body)
+    console.log(TempTool.DB.content.inspect());
+    console.log({ "content": req.body.content,"_id":req.body._id })*/
+    //Model.findByIdAndUpdate(id, { name: 'jason bourne' }, options, callback)
+    //Model.findOneAndUpdate(query, { name: 'jason bourne' }, options, callback)
+    console.log(req.body)
+    data = TempTool.DB.content.findByIdAndUpdate(req.body._id,{ "object": req.body.content,"_id":req.body._id},{upsert: true,new: true,returnDocument:'after'},
+    (error, doc) => {
+         if(error!=null){
+            console.log("error",error)
+        }else{
+            console.log("doc",doc);
+            io.emit("update",doc);
+        }
+    })
+    //console.log(doc)
+    //io.emit("update","someData");
+    //content.create({ "content": req.body.content,"_id":133245 }, (error, doc) => { console.log("error",error)
+
+    
+        /*Tank.create({ size: 'small' }, function (err, small) {
+            if (err) return handleError(err);
+            // saved!
+        });/*
+        // doc.children[0]._id will be undefined*/
+    //  })
+    
     })
 
 app.post("/",(req,res)=>{
     console.log("Post incoming: ",req.body)
     currentTool = new Tool(req.body);
+    currentTool.EtablishConnection();
     //save(req.body.content)
     //res.send(currentTool.createOutputHTML())
     /*res.send("<html> <form action=\"/output.html\">"
@@ -196,7 +284,12 @@ function save(param){
 function Tool(param){
     this.name=param.ToolName;
     this.schema=param.schema;
+    console.log(this.schema)
     this.content=param.content;
+    this.DB={}
+    this.DB.content={};
+    this.DB.history={};
+    this.DB.DataDatadomainOperations={};
     this.OutputHTML="";
     this.createOutputHTML= function(...args){
         output=""
@@ -232,9 +325,58 @@ function Tool(param){
             console.log('Saved output.html!');
             });
     }
+    this.EtablishConnection= async function EtablishConnection(){
+        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
+        //await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: Tool.name}).then(()=>{console.log("Mongoose Connection to "+Tool.name+" successful")});
+        
+        const contentSchema = new mongoose.Schema({
+            _id: Number,
+            "object": String
+          });
+          const historySchema = new mongoose.Schema({
+            _id: Number,
+            werte: String,
+            value_pre: String,
+            value_post: String
+        })
+        const domainoperationsSchema = new mongoose.Schema({
+            wert: String
+        })
+        this.DB.content=content=conn.model("content",contentSchema);
+        this.DB.historyhistory=conn.model("history",historySchema);
+        this.DB.DataDatadomainOperations=conn.model("domainOperations",domainoperationsSchema);
+        console.log(this.schema)
+        for (x of this.schema) {//Model.findOneAndUpdate(query, { name: 'jason bourne' }, options, callback)
+            this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":x},{"wert":x},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
+        }
+    }
     this.save();
+    this.EtablishConnection();
 }
 
+
+//ID= drawnItems.getLayerId(drawnItems.getLayers()[0])
+async function EtablishConnection(Tool){
+    var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: Tool.name},()=>{console.log("Mongoose Connection to "+Tool.name+" successful")})
+    //await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: Tool.name}).then(()=>{console.log("Mongoose Connection to "+Tool.name+" successful")});
+    
+    const contentSchema = new mongoose.Schema({
+        _id: Number,
+        object: String
+      });
+      const historySchema = new mongoose.Schema({
+        _id: Number,
+        werte: String,
+        value_pre: String,
+        value_post: String
+    })
+    const domainoperationsSchema = new mongoose.Schema({
+        wert: String
+    })
+    content=conn.model("content",contentSchema);
+    history=conn.model("history",historySchema);
+    DataDatadomainOperations=conn.model("domainOperations",domainoperationsSchema);
+}
 
 
 process.on('SIGTERM', function () {

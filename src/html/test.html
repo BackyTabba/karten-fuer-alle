@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>	
     <link rel="stylesheet" href="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.css"/>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="/node_modules/leaflet/dist/leaflet-src.js"></script>
 	<script src="/node_modules/leaflet-toolbar/dist/leaflet.toolbar-src.js"></script>
@@ -19,6 +20,85 @@
     <script src="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.js"></script>
 	<script src="ColorPicker.js"></script>
 	<script src="/node_modules/leaflet-providers/leaflet-providers.js"></script>
+	<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
+	<style>
+			.another-popup .leaflet-popup-content-wrapper {
+		font-size: 24px;
+		line-height: 24px;
+		border-radius: 0px;
+}
+		</style>
+<script>
+  var socket = io();
+
+  //_________________________________________________
+//class="fa fa-list"
+
+
+EditFromDB = L.Toolbar2.Action.extend({
+	options: {
+		toolbarIcon: { className: 'fa fa-list' }
+	},
+
+	initialize: function (map, shape, options) {
+		this._map = map;
+
+		this._shape = shape;
+
+		L.Toolbar2.Action.prototype.initialize.call(this, map, options);
+	},
+
+	enable: function () {
+		var map = this._map,
+			shape = this._shape;
+
+		//shape.bindPopup()
+		//shape.Popup
+		popupstring2="";
+		$.ajax(  {method:"Get",
+  			url:"http:\/\/localhost:3000/schema"}).done((data)=>{
+				console.log(data);
+				outstr='<div><select name="DomainOperations" id="DomainOperations">\n'
+				for(x of data){
+					console.log(x.wert)
+					outstr+='"<option value="'+x.wert+'">'+x.wert+'</option>+\n'
+				}
+				outstr+='</select>\n <input type="submit" value="Senden"></div>'
+				shape._popup._content+=outstr;
+				shape._popup.update()
+				shape._popup._
+			})
+		popupstring='<div><label for="text1">Erstes Attribut </label><input type="text" id="text1" name="text1" value="text1"></div>'
+		popupstring+='<div><label for="text2">Zweites Attribut </label><input type="text" id="text2" name="text2" value="text2"></p></div>'
+		
+		console.log(popupstring2)
+		shape.bindPopup(popupstring,{"className":"another-popup"});
+		console.log(shape)
+		console.log(shape._eventParents[Object.keys(shape._eventParents)[0]].RealID)
+		//.setContent('<p>Hello world!<br />This is a nice popup.</p>')
+		map.removeLayer(this.toolbar);
+		
+		map.on('click', function () {
+			this.save();
+			//shape.editing.disable();
+			shape.popup.disable();
+		}, this);
+	},
+
+	save: function() {
+		var map = this._map,
+			shape = this._shape;
+
+		//if (shape.edited) {
+			//mit Fire Popup austauschen
+			//map.fire(L.Draw.Event.EDITED, { layers: L.layerGroup([shape]) });
+		//}
+		//shape.edited = false;
+	}
+});
+
+//______________________________
+</script>
 	<!-- <script src="/node_modules/file-dialog/file-dialog.min.js"></script> -->
 	<!-- <script src="/node_modules/FileSaver/FileSaver.js"></script> -->
 <style>
@@ -40,12 +120,11 @@
 
 	}
 </style>
-
+<body onload="OnMapLoad()"> 
 <div id="map">
 	<div class="overlay">Tool-Überschrift lalala</div>
 </div>
-
-<input type="file" id="load-file" style="display:none" accept=".geojson">
+<input type="file" id="load-file" style="display:none" >
 <!--%0A neue Zeile; %2C Komma  encodeURI   accept=".geojson"-->
 <style>
 		 .leaflet-toolbar-icon .fa { color: rgb(74, 74, 74);
@@ -92,11 +171,13 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 
 	};
 	IOactions=[]
-    var map = L.map('map',{layers:Object.values(baseMaps)}).setView([41.7896,-87.5996], 15),
+	
+    var map = L.map('map',{layers:baseMaps["OpenStreetMap Mapnik"]}).setView([41.7896,-87.5996], 15),
 			drawnItems = new L.FeatureGroup().addTo(map),
 			editActions = [
                 L.Toolbar2.EditAction.Popup.Edit,
                 L.Toolbar2.EditAction.Popup.Delete,
+				EditFromDB,
 				L.Toolbar2.Action.extendOptions({
 					toolbarIcon: { 
 						className: 'leaflet-color-picker', 
@@ -111,40 +192,69 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 					]})
 				})
 			];
+	drawnItems.getLayerByRealID=function(RealID){
+		for (x of drawnItems.getLayers()){
+			if(x["_layers"] == undefined){
+				if(x.getRealID()==RealID){
+					return x;
+				}
+			}
+		}
+	}
 
-		//L.layers(baseMaps).addTo(map);
+	function AddToMap(data){
+		for (x of data) {
+			console.log("x",x,"data",data,"data[x]",data[x])
+			layer=L.geoJSON(JSON.parse(x.object),{
+				onEachFeature: function (feature, layer) {
+					layer.on('click', function (event) {
+					new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+						actions: editActions
+					}).addTo(map, layer);});
+					layer.on("edit", function(evt) {
+						layer = evt.target;
+						$.ajax({
+						type: "POST",
+						url: "http:\/\/localhost:3000/upload",
+						data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
+						success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+						});	})
+					layer.on('click', function(event) {
+						new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+							actions: editActions
+						}).addTo(map, layer);
+					})
+				}
+			})
+			layer.RealID=x._id;
+			layer.getRealID=function(){return layer.LayerID};
+			layer.addTo(map);
+			drawnItems.addLayer(layer);
+		}
+	}
+	map.on("draw:deleted",(evt)=>{console.log("MAP: Now we could send delete post",evt)
+				console.log("RealID",evt.layers.getLayers()[0].RealID)
+				console.log(evt.layers.getLayers())
+				layer=evt.layers.getLayers()[0];
+				$.ajax({
+					type: "DELETE",
+					url: "http:\/\/localhost:3000/upload",
+					data: {"_id":layer.RealID},
+					success: console.log("Successful transmitted Delete of id:"+layer.RealID+"!")
+				});	
+			})
+	function OnMapLoad(){
+		console.log("load fired")
+		$.ajax({
+			type: "GET",
+			url: "http:\/\/localhost:3000/upload",
+			success: console.log("Successful transmitted Get of all!")
+		}).done((data)=>{
+			console.log(data);
+			AddToMap(data);
+		});
+	}
 		var layerControl = L.control.layers(baseMaps).addTo(map);
-		//console.log("drawnItems",drawnItems.toGeoJSON());
-		/*var toolbar = L.Toolbar();
-   		toolbar.addToolbar(map);*/
-
-				//geojson hinzufügen: L.geoJSON(temp0).addTo(map)
-				//geojson bekommen: drawnItems.toGeoJSON 
-//_____________________________________
-/*
-		var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 19,
-			attribution: '© OpenStreetMap'
-		});
-
-		var streets = L.tileLayer(mapboxUrl, { id: 'mapbox/streets-v11', tileSize: 512, zoomOffset: -1, attribution: mapboxAttribution });
-
-		var map = L.map('map', {
-			center: [39.73, -104.99],
-			zoom: 10,
-			layers: [osm, cities]
-		});
-
-		var baseMaps = {
-			"OpenStreetMap": osm,
-			"Mapbox Streets": streets
-		};
-
-		var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
-*/
-//_____________________________________
-
-
 
 		new L.Toolbar2.DrawToolbar({
 			position: 'topleft',
@@ -159,12 +269,8 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
         
 		var saveGeojson = L.Toolbar2.Action.extend({
 				options: {
-					toolbarIcon: { //&#9873;
-						//    &#128190;    &#128427;
-   // &#x1F5AB;
-
-   //&#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
-    
+					toolbarIcon: { 
+						//    &#128190; &#128427; &#x1F5AB; &#9873; &#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
 						html: '&#x1F5AB;',
 						tooltip: 'Get GeoJson'
 					},
@@ -175,30 +281,23 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 
 					console.log(JSON.stringify(drawnItems.toGeoJSON()));
 					var toSave = encodeURIComponent(JSON.stringify(drawnItems.toGeoJSON()));
-					console.log(toSave);
+					console.log('toSave',toSave);
 					//window.open("data:application/octet-stream,"+toSave,"_blank");
 					window.open("data:application/octet-stream,"+toSave,"_blank");
-					//fileDialog({ multiple: false, accept: 'image/*' }, files => {
-						// files contains an array of FileList
-					//})
+					fileDialog({ multiple: false, accept: 'image/*' }, files => {
+						//files contains an array of FileList
+					})
 				}
 
 			});
 			var openGeojson = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { 
-						//&#9873;
-						//    &#128190;    &#128427;
-   // &#x1F5AB;
-
-   //&#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
-						
+						//    &#128190; &#128427; &#x1F5AB; &#9873; &#128194; file folder https://www.compart.com/en/unicode/U+1F4C2				
 						html: '&#128194',
 						tooltip: 'Upload GeoJson'
 					},
-					
 				},
-
 				addHooks: function () {
 					console.log("L.geoJSON(JSON(temp0)).addTo(map)");
 					document.getElementById("load-file").click();
@@ -206,13 +305,6 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 						var fr = new FileReader();
 						fr.onload=function(){
 							console.log(fr.result);
-							//L.geoJSON(JSON.parse(fr.result)).addTo(map) //funktioniert
-							/*console.log(JSON.parse(fr.result)["features"][0].geometry);
-							console.log(JSON.parse(fr.result).features[0].geometry);
-							console.log(JSON.parse(fr.result));*/
-
-							
-							//layer=L.geoJSON(JSON.parse(fr.result)).addTo(map);
 							console.log(JSON.parse(fr.result));
 							layer=L.geoJSON(JSON.parse(fr.result),{onEachFeature: function (feature, layer) {
 								layer.on('click', function (event) {
@@ -222,24 +314,11 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 							})
 							}});
 							layer.addTo(map);
-							
-							//JSON.parse(fr.result)
-
-							/*layer.on('click', function (event) {
-								new L.Toolbar2.EditToolbar.Popup(event.latlng, {
-									actions: editActions
-								}).addTo(map, layer);
-							})*/
-							
 							drawnItems.addLayer(layer);
-							//new L.FeatureGroup(JSON.parse(fr.result).features[0]).addTo(map)
-							//L.geoJSON(JSON.parse(fr.result)).addTo(map)
-							//L.geoJSON(JSON.parse(fr.result)).addTo(map)
 						}
 						fr.readAsText(this.files[0])
 					})
 				}
-
 			});
 			
 			IOactions=[...IOactions,openGeojson]
@@ -248,27 +327,6 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				position: 'topleft',
 				actions: IOactions
 			}).addTo(map);
-
-        // var toolbar= L.Toolbar2.Control({
-        //     options: {
-        //         actions: [
-        //             L.Toolbar2.DrawAction.Polygon,
-        //             L.Toolbar2.DrawAction.Polyline,
-        //             L.Toolbar2.DrawAction.Marker,
-        //             L.Toolbar2.DrawAction.Rectangle,
-        //             L.Toolbar2.DrawAction.Circle
-        //         ],
-        //         className: 'leaflet-draw-toolbar'
-        //     }
-        // }).addTo(map);
-        // console.log(toolbar);
-        //toolbar.addTo(map);*/
-
-		//lokal abspeichern:
-		//https://websparrow.org/web/how-to-create-and-save-text-file-in-javascript
-		//lokal öffnen:
-		//https://stackoverflow.com/questions/3582671/how-to-open-a-local-disk-file-with-javascript
-		
 /*
 	const pickerOpts = {
 		types: [
@@ -307,20 +365,121 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 			}
 			readSingleFile();*/
 
-		map.on('draw:created', function(evt) {
-			var	type = evt.layerType,
-				layer = evt.layer;
-
-
-			drawnItems.addLayer(layer);
-
-			layer.on('click', function(event) {
+	/*socket.on("init",(data)=>{
+		layer=L.geoJSON(JSON.parse(data.object),{
+			onEachFeature: function (feature, layer) {
+				layer.RealID=data._id;
+				layer.getRealID=function(){return this.LayerID};
+				layer.on('click', function (event) {
 				new L.Toolbar2.EditToolbar.Popup(event.latlng, {
 					actions: editActions
-				}).addTo(map, layer);
-			});
+				}).addTo(map, layer);});
+				layer.on("edit", function(evt) {
+					layer = evt.target;
+					$.ajax({
+					type: "POST",
+					url: "http:\/\/localhost:3000/upload",
+					data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
+					success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+					});	})
+				layer.on('click', function(event) {
+					new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+						actions: editActions
+					}).addTo(map, layer);
+				})
+			}
+		})
+		layer.addTo(map);
+		drawnItems.addLayer(layer);
+	})*/
+	socket.on("update",(data)=>{console.log("data from socket",data)
+		console.log("data._id",data._id)
+		console.log(drawnItems.getLayerByRealID(data._id));
+		currentLayer=drawnItems.getLayerByRealID(data._id);
+		drawnItems.removeLayer(currentLayer);
+		map.removeLayer(currentLayer);
+		drawnItems.removeLayer(currentLayer);
+		AddToMap(data);
+		/*
+			console.log(data.object)
+		layer=L.geoJSON(JSON.parse(data.object),{
+			onEachFeature: function (feature, layer) {
+				layer.RealID=data._id;
+				layer.getRealID=function(){return this.LayerID};
+				layer.on('click', function (event) {
+				new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+					actions: editActions
+				}).addTo(map, layer);});
+				layer.on("edit", function(evt) {
+					layer = evt.target;
+					$.ajax({
+					type: "POST",
+					url: "http:\/\/localhost:3000/upload",
+					data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
+					success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+					});	})
+				layer.on('click', function(event) {
+					new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+						actions: editActions
+					}).addTo(map, layer);
+				})
+			}
+		})
+		layer.addTo(map);
+		drawnItems.addLayer(layer);*/
+	});
+
+			//websockets https://socket.io/get-started/chat
+	map.on('draw:created', function(evt) {
+		console.log("DRAW CREATED!!!")
+		var	type = evt.layerType,
+		layer = evt.layer;
+				
+		L.stamp(layer);
+		id=drawnItems.getLayerId(evt);
+		layer.RealID=id;
+		layer.getRealID=function(){return this.LayerID};
+		console.log("RealID",layer.RealID);
+		$.ajax({
+			type: "POST",
+			url: "http:\/\/localhost:3000/upload",
+			data: {"content":JSON.stringify(evt.layer.toGeoJSON()),"_id":layer.RealID},
+			success: console.log("Successful transmitted Creation of id:"+layer.RealID+"!")
 		});
-	
+						//https://gis.stackexchange.com/questions/171648/how-get-layerid-or-layer-name-from-marker
+		layer.on("edit", function(evt) {
+			layer = evt.target;
+			$.ajax({
+				type: "POST",
+				url: "http:\/\/localhost:3000/upload",
+				data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
+				success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+			});	
+		});
+		layer.on('click', function(event) {
+			new L.Toolbar2.EditToolbar.Popup(event.latlng, {
+				actions: editActions
+			}).addTo(map, layer);
+		});
+		drawnItems.addLayer(layer);
+		/*map.on("draw:deleted",(evt)=>{console.log("MAP: Now we could send delete post",evt)
+			console.log("RealID",evt.layers.getLayers()[0].RealID)
+			console.log(evt.layers.getLayers())
+			layer=evt.layers.getLayers()[0];
+			$.ajax({
+				type: "DELETE",
+				url: "http:\/\/localhost:3000/upload",
+				data: {"_id":layer.RealID},
+				success: console.log("Successful transmitted Delete of id:"+layer.RealID+"!")
+			});	
+		})*/	
+
+	});
+
+
+
+
+
 
 </script>
 </body>
