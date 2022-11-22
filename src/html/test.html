@@ -22,6 +22,34 @@
 	<script src="/node_modules/leaflet-providers/leaflet-providers.js"></script>
 	<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 	<style>
+		#map {
+   position: absolute;
+   top: 0;
+   right: 0;
+   left: 0;
+   bottom: 0;
+   z-index: 0;
+}
+.leaflet-popup {margin-left:1px; top: 24px !important;}
+/* Here I move the "tip" to the right location, but didn't succeed in making it visible. So I just remove the box-shadow and leave it: */
+.leaflet-popup-tip-container {
+   top: 0px !important;
+}
+.leaflet-popup-tip {
+   box-shadow: none !important;
+}
+.leaflet-popup:before 
+    {
+    content: "";
+    position: absolute;
+    border: 13px solid transparent;
+    border-bottom-color: white;
+    bottom: 0px;
+    margin-left: -13px;
+}
+
+
+
 			.another-popup .leaflet-popup-content-wrapper {
 		font-size: 24px;
 		line-height: 24px;
@@ -30,71 +58,181 @@
 		</style>
 <script>
   var socket = io();
+  socket.connect(window.location.protocol+"//"+window.location.host , {
+    upgrade: false,
+    transports: ['websocket']
+})
+//ENVVariables
+PopupCreationString=`<form action="/popup" method="POST" id="take"> 
+     <fieldset>
+<div><label for="Attribute1">Attribute1</label><input type="text" id="Attribute1" name="Attribute1" value="" required="" pattern="^.*$" title="Ab-cDe.F54,2sg"></div> 
+<div><label for="AttributBeispiel">AttributBeispiel</label><input type="text" id="AttributBeispiel" name="AttributBeispiel" value="" required="" pattern="^\\d*(.|,)?\\d*$" title="133245553.055 | 113124 | 1151515,04"></div> 
+<div><label for="Attribute1245">Attribute1245</label><input type="text" id="Attribute1245" name="Attribute1245" value="" required="" pattern="^(True|true|False|false)$" title="True | False"></div> 
+`+'<input type="text" id="_id" name="_id" value=${value} visible=false>'+`
+ <input type="submit" value="Senden"></fieldset>
+</form>`
+PopupString=`<form action="/popup" method="POST" id="take"> 
+     <fieldset>
+<div><label for="Attribute1">Attribute1</label><input type="text" id="Attribute1" name="Attribute1" value="" required="" pattern="^.*$" title="Ab-cDe.F54,2sg"></div> 
+<div><label for="AttributBeispiel">AttributBeispiel</label><input type="text" id="AttributBeispiel" name="AttributBeispiel" value="" required="" pattern="^\\d*(.|,)?\\d*$" title="133245553.055 | 113124 | 1151515,04"></div> 
+<div><label for="Attribute1245">Attribute1245</label><input type="text" id="Attribute1245" name="Attribute1245" value="" required="" pattern="^(True|true|False|false)$" title="True | False"></div> 
+<div><select name="DomainOperations" id="DomainOperations">
+"<option value="Asave">Asave</option>+
+"<option value="Bsave">Bsave</option>+
+"<option value="Csave">Csave</option>+
+"<option value="Dsave">Dsave</option>+
+</select>
+ `+'<input type="text" id="_id" name="_id" value="${value}" hidden="true"><input type="submit" value="Senden"></div></fieldset>'+`
+</form>`
+//EnvVariables End
+
+function GetPopupCreationString(RealID){
+	output=PopupCreationString
+	output= output.replace("${value}",RealID)
+	return output
+}
+console.log(GetPopupCreationString(1234));
+
+function GetPopupString(RealID){
+	output=PopupString
+	output= output.replace("${value}",RealID)
+	return output
+}
+
+
 
   //_________________________________________________
 //class="fa fa-list"
 
+CloseToolbar=L.Toolbar2.Action.extend({						options: {
+							toolbarIcon: { className: 'fa fa-times' },
+							tooltip: 'Close'
+						},
+					initialize: function (map, overlay, options) {
+/*
+						options = options || {};
+						options.toolbarIcon = {
+						className:"fas fa-check",
+						
+						}*/
+						L.Toolbar2.Action.prototype.initialize.call(this, map, overlay, options);
+					},
+					addHooks: function () {
+						map.removeLayer(this.toolbar);
+						console.log(this)
+						//console.log("map,overlay,options,layer",map,overlay,options,layer)
+							//theActualFunctionToExecute(shape);
+					}
+				})
 
 EditFromDB = L.Toolbar2.Action.extend({
 	options: {
-		toolbarIcon: { className: 'fa fa-list' }
+		toolbarIcon: { 
+			className: 'fa fa-pencil'
+		}
 	},
 
-	initialize: function (map, shape, options) {
+	initialize: function (map, shape, options,event) {
 		this._map = map;
 
 		this._shape = shape;
+
+		console.log("initialize")
+		console.log("map",map,"shape", shape,"options", options,"layer",layer,"event",event)
+		console.log(layer.getRealID())
+		/*console.log("shape.Popupvar==undefined",shape.Popupvar==undefined)
+		console.log()
+		if(shape._popup!==undefined){
+		//console.log("shape._popup scheinbar defined", shape._popup!==undefined,shape._popup)
+		map.removeLayer(shape._popup);
+		}
+		if(shape.Popupvar==undefined){
+		shape.Popupvar=true;
+		}else{
+		console.log(shape)
+		}*/
+
 
 		L.Toolbar2.Action.prototype.initialize.call(this, map, options);
 	},
 
 	enable: function () {
+		console.log("enable")
 		var map = this._map,
 			shape = this._shape;
-
+		/*
 		//shape.bindPopup()
 		//shape.Popup
 		popupstring2="";
-		$.ajax(  {method:"Get",
-  			url:"http:\/\/localhost:3000/schema"}).done((data)=>{
+		/*$.ajax(  {method:"Get",
+  			url:"/schema"}).done((data)=>{
 				console.log(data);
-				outstr='<div><select name="DomainOperations" id="DomainOperations">\n'
+				outputstr='<div><select name="DomainOperations" id="DomainOperations">\n'
 				for(x of data){
 					console.log(x.wert)
-					outstr+='"<option value="'+x.wert+'">'+x.wert+'</option>+\n'
+					outputstr+='"<option value="'+x.wert+'">'+x.wert+'</option>+\n'
 				}
-				outstr+='</select>\n <input type="submit" value="Senden"></div>'
-				shape._popup._content+=outstr;
+				outputstr+='</select>\n <input type="submit" value="Senden"></div>'
+				shape._popup._content+=outputstr;
 				shape._popup.update()
-				shape._popup._
-			})
-		popupstring='<div><label for="text1">Erstes Attribut </label><input type="text" id="text1" name="text1" value="text1"></div>'
+			})*/
+		/*popupstring='<div><label for="text1">Erstes Attribut </label><input type="text" id="text1" name="text1" value="text1"></div>'
 		popupstring+='<div><label for="text2">Zweites Attribut </label><input type="text" id="text2" name="text2" value="text2"></p></div>'
 		
 		console.log(popupstring2)
 		shape.bindPopup(popupstring,{"className":"another-popup"});
 		console.log(shape)
-		console.log(shape._eventParents[Object.keys(shape._eventParents)[0]].RealID)
+		console.log(shape._eventParents[Object.keys(shape._eventParents)[0]].RealID)*/
 		//.setContent('<p>Hello world!<br />This is a nice popup.</p>')
+		console.log(shape.Popupvar)
+		shape.Popupvar=!shape.Popupvar
+		if(this._shape._popup==undefined){
+		this._shape.bindPopup(GetPopupString(layer.getRealID),{"className":"another-popup"});
+		}
+		//temp0.togglePopup()
+		//temp0.openPopup()
+		shape.togglePopup();
+		console.log("shape",shape)
+		//shape.openPopup();
 		map.removeLayer(this.toolbar);
-		
+		testbar=this.toolbar
+		//map.removeLayer(shape._popup);
+		/*if(shape.PopupAlwaysOpen){
+		shape.Popup.open()
+		}*/
+		//shape.PopupAlwaysOpen=!shape.PopupAlwaysOpen;
 		map.on('click', function () {
-			this.save();
+			//this.save();
 			//shape.editing.disable();
-			shape.popup.disable();
+			shape._popup.close();
+			console.log(shape);
+		}, this);
+		shape.on('click', function () {
+			//this.save();
+			//shape.editing.disable();
+			this._shape._popup.close();
+			console.log(shape);
 		}, this);
 	},
-
-	save: function() {
+	disable: function(){
+		console.log("disable")
 		var map = this._map,
 			shape = this._shape;
+			//shape.popup.close();
+			shape._popup.close();
+
+	},
+
+	/*save: function() {
+		var map = this._map,
+			shape = this._shape;*/
 
 		//if (shape.edited) {
 			//mit Fire Popup austauschen
 			//map.fire(L.Draw.Event.EDITED, { layers: L.layerGroup([shape]) });
 		//}
 		//shape.edited = false;
-	}
+	//}
 });
 
 //______________________________
@@ -125,7 +263,7 @@ EditFromDB = L.Toolbar2.Action.extend({
 	<div class="overlay">Tool-Überschrift lalala</div>
 </div>
 <input type="file" id="load-file" style="display:none" >
-<!--%0A neue Zeile; %2C Komma  encodeURI   accept=".geojson"-->
+<!--%0A neue Zeile; %2C Komma  encodeURI   accept=".geooutput"-->
 <style>
 		 .leaflet-toolbar-icon .fa { color: rgb(74, 74, 74);
             font-size: 0.9rem;} 
@@ -154,7 +292,6 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
     .addTo(map);*/
 
     //leaflet-toolbar
-	console.log()
 	var baseMaps = {
 		"OpenTest": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -171,8 +308,33 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 
 	};
 	IOactions=[]
-	
-    var map = L.map('map',{layers:baseMaps["OpenStreetMap Mapnik"]}).setView([41.7896,-87.5996], 15),
+
+//____________________________________________________________
+	/*newAction = L.EditAction.extend({
+            initialize: function (map, overlay, options) {
+                options = options || {};
+                options.toolbarIcon = {
+                html: '<i class="fas fa-check"></i>',
+                tooltip: 'My new Action'
+                };
+
+                L.EditAction.prototype.initialize.call(this, map, overlay, options);
+            },
+
+            addHooks: function () {
+                var ov = this._overlay;
+                if (ov.editing._mode !== 'lock') {
+                      theActualFunctionToExecute();
+                }
+            }
+        });
+		/*L.DomEvent.on(img._image, 'load', function() {
+        img.editing.addTool(newAction);
+		edit.addTool(newAction);
+      });*/
+//_________________________________________________________________________________________________
+
+    var map = L.map('map',{layers:baseMaps["Stadia AlidadeSmoothDark"]}).setView([41.7896,-87.5996], 15),
 			drawnItems = new L.FeatureGroup().addTo(map),
 			editActions = [
                 L.Toolbar2.EditAction.Popup.Edit,
@@ -190,36 +352,62 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 						L.ColorPicker.extendOptions({ color: '#0000ff' }),
                         L.ColorPicker.extendOptions({ color: "#3388ff" })
 					]})
-				})
+				}),
+				CloseToolbar
 			];
 	drawnItems.getLayerByRealID=function(RealID){
 		for (x of drawnItems.getLayers()){
-			if(x["_layers"] == undefined){
+			//console.log("x.getRealID()==RealID: ",x.getRealID(),"==",RealID, " : ",x.getRealID()==RealID,x)
 				if(x.getRealID()==RealID){
 					return x;
 				}
-			}
+
 		}
+		console.log(RealID + " is not part of drawnItems")
 	}
 
+
+	function LayerToJson(layer) { //https://medium.com/geoman-blog/how-to-handle-circles-in-geojson-d04dcd6cb2e6
+			output = layer.toGeoJSON();
+			if (layer instanceof L.Circle) {
+				output.properties.radius = layer.getRadius();
+			}
+			return output;
+}
+
+
 	function AddToMap(data){
+		if(data.length==undefined){
+			data=[data]
+		}
 		for (x of data) {
-			console.log("x",x,"data",data,"data[x]",data[x])
+			//console.log("x",x,"data",data,"data[x]")
+
 			layer=L.geoJSON(JSON.parse(x.object),{
+				pointToLayer: (feature, latlng) => {
+					if (feature.properties.radius) {
+					return new L.Circle(latlng, feature.properties.radius);
+					} else {
+					return new L.Marker(latlng);
+					}
+				},
 				onEachFeature: function (feature, layer) {
 					layer.on('click', function (event) {
 					new L.Toolbar2.EditToolbar.Popup(event.latlng, {
 						actions: editActions
 					}).addTo(map, layer);});
 					layer.on("edit", function(evt) {
+						console.log("edited layer:", evt.target)
 						layer = evt.target;
-						$.ajax({
+						parentRealID=evt.target._eventParents[Object.keys(evt.target._eventParents)].RealID
+						$.ajax({ //upload Data
 						type: "POST",
-						url: "http:\/\/localhost:3000/upload",
-						data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
-						success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+						url: "/upload",
+						data: {"content":JSON.stringify(LayerToJson(layer)),"_id":parentRealID},
+						success: console.log("Successful transmitted Edit of id:"+parentRealID+"!")
 						});	})
 					layer.on('click', function(event) {
+						layer.openPopup();
 						new L.Toolbar2.EditToolbar.Popup(event.latlng, {
 							actions: editActions
 						}).addTo(map, layer);
@@ -227,27 +415,44 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				}
 			})
 			layer.RealID=x._id;
-			layer.getRealID=function(){return layer.LayerID};
+			layer.getRealID=function(){return this.RealID};
 			layer.addTo(map);
 			drawnItems.addLayer(layer);
 		}
 	}
+	
 	map.on("draw:deleted",(evt)=>{console.log("MAP: Now we could send delete post",evt)
 				console.log("RealID",evt.layers.getLayers()[0].RealID)
 				console.log(evt.layers.getLayers())
 				layer=evt.layers.getLayers()[0];
+
+				SourceLeafletId=Object.keys(evt.layers._layers)[0] //Key von source				
+				for (x in evt.target._layers){
+					//console.log()
+					if(evt.target._layers[x]._layers!==undefined){
+						//console.log(evt.target._layers[x]._layers)
+						if(Object.keys(evt.target._layers[x]._layers)[0]==SourceLeafletId){
+							mapLookupMatch=evt.target._layers[x]._layers,Object.keys(evt.target._layers[x]._layers)[0]
+							mapLookupMatchParentLeafeltID=Object.keys(mapLookupMatch[SourceLeafletId]._eventParents)[0]
+							mapLookupMatchParent=mapLookupMatch[SourceLeafletId]._eventParents[Object.keys(mapLookupMatch[SourceLeafletId]._eventParents)[0]]
+							console.log(mapLookupMatchParent.RealID)
+						}
+					}
+				}
+				console.log(window.location.url)
 				$.ajax({
 					type: "DELETE",
-					url: "http:\/\/localhost:3000/upload",
-					data: {"_id":layer.RealID},
-					success: console.log("Successful transmitted Delete of id:"+layer.RealID+"!")
+					//url: "http:\/\/localhost:3000/upload",
+					url: "/upload",
+					data: {"_id":mapLookupMatchParent.RealID},
+					success: console.log("Successful transmitted Delete of id:"+mapLookupMatchParent.RealID+"!")
 				});	
 			})
 	function OnMapLoad(){
 		console.log("load fired")
 		$.ajax({
 			type: "GET",
-			url: "http:\/\/localhost:3000/upload",
+			url: "/upload",
 			success: console.log("Successful transmitted Get of all!")
 		}).done((data)=>{
 			console.log(data);
@@ -267,7 +472,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		}).addTo(map);
         //var toolbar = new L.Toolbar2.DrawToolbar(); // empty toolbar
         
-		var saveGeojson = L.Toolbar2.Action.extend({
+		var saveGeooutput = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { 
 						//    &#128190; &#128427; &#x1F5AB; &#9873; &#128194; file folder https://www.compart.com/en/unicode/U+1F4C2
@@ -290,7 +495,7 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				}
 
 			});
-			var openGeojson = L.Toolbar2.Action.extend({
+			var openGeooutput = L.Toolbar2.Action.extend({
 				options: {
 					toolbarIcon: { 
 						//    &#128190; &#128427; &#x1F5AB; &#9873; &#128194; file folder https://www.compart.com/en/unicode/U+1F4C2				
@@ -321,8 +526,8 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 				}
 			});
 			
-			IOactions=[...IOactions,openGeojson]
-			IOactions=[...IOactions,saveGeojson]
+			IOactions=[...IOactions,openGeooutput]
+			IOactions=[...IOactions,saveGeooutput]
 			new L.Toolbar2.Control({
 				position: 'topleft',
 				actions: IOactions
@@ -392,14 +597,27 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		layer.addTo(map);
 		drawnItems.addLayer(layer);
 	})*/
-	socket.on("update",(data)=>{console.log("data from socket",data)
+
+	//update event from DB
+	socket.on("delete",(data)=>{
+		console.log("delete from socket",data)
 		console.log("data._id",data._id)
 		console.log(drawnItems.getLayerByRealID(data._id));
 		currentLayer=drawnItems.getLayerByRealID(data._id);
 		drawnItems.removeLayer(currentLayer);
-		map.removeLayer(currentLayer);
+		}
+	)
+	socket.on("update",(data)=>{console.log("data from socket",data)
+		console.log("data._id",data._id)
+		if(drawnItems.getLayerByRealID(data._id)!==undefined){
+		console.log(drawnItems.getLayerByRealID(data._id));
+		currentLayer=drawnItems.getLayerByRealID(data._id);
 		drawnItems.removeLayer(currentLayer);
+		map.removeLayer(currentLayer);
+		//drawnItems.removeLayer(currentLayer);
+		}
 		AddToMap(data);
+		map.invalidateSize();
 		/*
 			console.log(data.object)
 		layer=L.geoJSON(JSON.parse(data.object),{
@@ -431,37 +649,60 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 
 			//websockets https://socket.io/get-started/chat
 	map.on('draw:created', function(evt) {
-		console.log("DRAW CREATED!!!")
+		console.log("DRAW CREATED!!!", evt) //layer.renderer.leafletid == map._layers.leafletid!!!
 		var	type = evt.layerType,
 		layer = evt.layer;
 				
 		L.stamp(layer);
 		id=drawnItems.getLayerId(evt);
+		console.log("draw:created, getLayerId of eventlayer: " + id)
 		layer.RealID=id;
-		layer.getRealID=function(){return this.LayerID};
+		layer.getRealID=function(){return this.RealID};
 		console.log("RealID",layer.RealID);
-		$.ajax({
+		console.log("created layer: ",layer)
+		console.log("content:",JSON.stringify(LayerToJson(layer)),"_id:",layer.RealID)
+		$.ajax({ // uploadData
 			type: "POST",
-			url: "http:\/\/localhost:3000/upload",
-			data: {"content":JSON.stringify(evt.layer.toGeoJSON()),"_id":layer.RealID},
+			url: "/upload",
+			data: {"content":JSON.stringify(LayerToJson(layer)),"_id":layer.RealID},
 			success: console.log("Successful transmitted Creation of id:"+layer.RealID+"!")
 		});
 						//https://gis.stackexchange.com/questions/171648/how-get-layerid-or-layer-name-from-marker
 		layer.on("edit", function(evt) {
 			layer = evt.target;
-			$.ajax({
+			parentRealID=evt.target._eventParents[Object.keys(evt.target._eventParents)].RealID
+			console.log("edited layer", evt.target)
+			$.ajax({ // uploadData
 				type: "POST",
-				url: "http:\/\/localhost:3000/upload",
-				data: {"content":JSON.stringify(layer.toGeoJSON()),"_id":layer.RealID},
-				success: console.log("Successful transmitted Edit of id:"+layer.RealID+"!")
+				url: "/upload",
+				data: {"content":JSON.stringify(LayerToJson(layer)),"_id":parentRealID},
+				success: console.log("Successful transmitted Edit of id:"+parentRealID+"!")
 			});	
 		});
 		layer.on('click', function(event) {
 			new L.Toolbar2.EditToolbar.Popup(event.latlng, {
 				actions: editActions
 			}).addTo(map, layer);
+			console.log("clickevent draw:created",event)
+			/*var popup = L.popup()
+				.setLatLng(L.latLng(event.latlng))
+				.openOn(map)
+				.setContent('<p>Hello world!<br />This is a nice popup.</p>')
+				.togglePopup();*/
+
 		});
+
+			/*new L.Popup(event.latlng, GetPopupCreationString(layer.RealID),{
+				className:"another-popup"
+			}).addTo(map, layer);
+		console.log("Popupcreationstring",GetPopupCreationString(layer.RealID));
+		layer.bindPopup(GetPopupCreationString(layer.RealID),{"className":"another-popup"})
+		console.log("Popup binded")
+		console.log(layer)
+		layer.openPopup()
+		layer._popup.open();*/
 		drawnItems.addLayer(layer);
+
 		/*map.on("draw:deleted",(evt)=>{console.log("MAP: Now we could send delete post",evt)
 			console.log("RealID",evt.layers.getLayers()[0].RealID)
 			console.log(evt.layers.getLayers())
@@ -475,7 +716,6 @@ var tooltip = L.tooltip(latlng, {content: 'Hello world!<br />This is a nice tool
 		})*/	
 
 	});
-
 
 
 
