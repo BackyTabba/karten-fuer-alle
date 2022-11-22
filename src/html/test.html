@@ -21,6 +21,7 @@
 	<script src="ColorPicker.js"></script>
 	<script src="/node_modules/leaflet-providers/leaflet-providers.js"></script>
 	<script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
+	<script src=""></script>
 	<style>
 		#map {
    position: absolute;
@@ -252,7 +253,27 @@ EditFromDB = L.Toolbar2.Action.extend({
 		shape.Popupvar=!shape.Popupvar
 		if(this._shape._popup==undefined){
 		this._shape.bindPopup(GetPopupString(layer.getRealID()),{"className":"another-popup"}).on("popupopen",function(){
+			$.get("/history",{"_id":$('#_id').attr("value")},(data)=>{
+				console.log("DATADATADATA",data,data.length==0)
+				if(data.length==0){
+                	$('#DomainOperations').hide()
+    			}
+				//historyfeld value auffüllen
+				for (x of data){
+					if($('#history').val()==""){$('#history').val(x.DataDatadomainOperation)}else{
+					$('#history').val($('#history').val()+"\n"+x.DataDatadomainOperation)}
+					console.log(x.DataDatadomainOperation)
+				}
+				$('#Message').hide()
+			})
+			$.get("/popup",{_id:$('#_id').val()},(data)=>{
+				console.log(data)
+				for(x in data){
+					$("#"+x).val(data[x])
+					}
+			})
 			$('#take').submit(function(e){
+				//https://stackoverflow.com/questions/1960240/jquery-ajax-submit-form
 					var frm = $('#take');
                     e.preventDefault();
 

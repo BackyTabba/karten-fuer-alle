@@ -207,6 +207,7 @@ app.post("/popup",(req,res)=>{
     res.sendStatus(200);
     //res.set("Connection", "close");
 })
+
 app.post("/upload",(req,res)=>{
     console.log("/upload", req.body)
     /*console.log("Upload incoming: ",req.body)
@@ -515,6 +516,9 @@ function Tool(param){
 
         $.get("/history",{"_id":$('#_id').attr("value")},(data)=>{
             console.log(data)
+            if(data=={}){
+                $('#DomainOperations').hide()
+            }
             //historyfeld value auffüllen
             for (x of data){
                 $('#history').val($('#history').val()+\\n+x.DataDatadomainOperation)
