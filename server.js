@@ -487,13 +487,13 @@ function Tool(param){
                     case "Boolean": validationPattern='"^(True|true|False|false)$"'; title="True \| False"; break
                     default : console.log("getPopupString(): Kein vailidationPattern passt..."); validationPattern="^.*$"; break
                 }
-                console.log("getPopupString() nach Ermittlung des validation Patterns: ",outputstr, validationPattern,title)
+                //console.log("getPopupString() nach Ermittlung des validation Patterns: ",outputstr, validationPattern,title)
                 outputstr+='<div><label for="'+x+'">'+x+'</label><input type="text" id="'+x+'" name="'+x+'" value="" required pattern='+validationPattern+' title="'+title+'"></div> \n'
                 }
             }
 
         //Select
-        console.log(this.schema)
+        //console.log(this.schema)
         outputstr+='<div><select name="DomainOperations" id="DomainOperations">\n'
         for(x of this.schema){
                 outputstr+='"<option value="'+x+'">'+x+'</option>+\n'
@@ -517,7 +517,7 @@ function Tool(param){
             console.log(data)
             //historyfeld value auffüllen
             for (x of data){
-                $('#history').val($('#history').val()+\n+x.DataDatadomainOperation)
+                $('#history').val($('#history').val()+\\n+x.DataDatadomainOperation)
                 console.log(x.DataDatadomainOperation)
             }
             $('#Message').hide()
