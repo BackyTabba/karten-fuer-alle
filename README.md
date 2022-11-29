@@ -12,8 +12,11 @@
 - [x] Create docker composes
 - [x] Ports and compose storage
 
-- [ ] View database data + recently changed
+- [x] View database data + recently changed
+- [x] geöffnete Dateien an Server senden
+- [x] downzuloadene Dateien vom Server bekommen
 - [ ] Autogenerate Docker-Version
+- [ ] Write EnvVariables
 - [ ] Export
 
 - [ ] Mongodb persistent data
@@ -33,24 +36,45 @@
 - [x] Popup aus Variablen schmieden
 - [x] Popup für die Erstellung schmieden
 - [x] Popup irgendwie öffnen
-- [ ] Popup Datenbankverbindung push(Historie)
-- [ ] in Popup Historie anzeigen Datenbankverbindung pull
+- [x] Popup Datenbankverbindung push(Historie)
+- [x] in Popup Historie anzeigen Datenbankverbindung pull
 
 - [ ] ~~Popup bei der Erstellung öffnen~~
 
 - [x] Popup so machen, dass es Sinn ergibt (wo und wann öffnet es sich)
-- [ ] Popup css anpassen
-- [ ] Übersetzungen generieren
-- [ ] Das in die Enddatei einpflegen
+- [x] Popup css anpassen
+- [ ] ~~Übersetzungen generieren~~
+- [x] Funktionen und envVars auslagern
+
+- [x] Das in die Enddatei einpflegen
+    - [x] Parameter in index.js wählbar machen
+        - [x] basemaps
+        - [x] neue variante Shapetypen zu wählen
+        - [x] Struktur und Kopierfunktion anpassen
+    - [x] input.txt anpassen
+
+- [x] Daten hochladen mit DB verknüpfen
+- [x] Daten runterladen mit DB verknüpfen
+
+- [ ] Neues Tool einrichten mit DB verknüpfen und Ports variable (Name = Identifikation)
+- [ ] Tool server_template.js zusammenstellen
+- [ ] node packages und packages-json zusammenstellen
+
+- [ ] Zusammenkopieren von 
+    - [ ] Tool:server.js
+    - [x] Tool:index.html (=output.html)
+    - [ ] Tool:node Packages
+    - [ ] Tool:node json.lock
+    - [ ] 
 
 - [ ] Check testdata
 - [ ] Advanced geospatial tool
 
 ### Optional/Lowpriority
-- [ ] Parameter in Datenbank
-- [ ] Datenbankrouten anlegen
-- [ ] Aus Parameter und Datentyp autogenerate Auswahl-HTML-Datei
+- [x] Parameter in Datenbank
+- [x] Datenbankrouten anlegen
+- [x] Aus Parameter und Datentyp autogenerate Auswahl-HTML-Datei
 - [ ] hübsche datei evtl header mit bootstrap?
-- [ ] Anzahl der Farben ändern
+- [x] Anzahl der Farben ändern
 - [ ] Marker Farboption fixen
-- [ ] besserer Auswahlprozess beim zusammenkopieren (Redundanzen reduzieren)
+- [x] besserer Auswahlprozess beim zusammenkopieren (Redundanzen reduzieren)

@@ -29,15 +29,15 @@
 
     </div>
     <div>
-      <input type="checkbox" id="Polygon" name="content[actions][Polygon]" value="true" checked>
+      <input type="checkbox" id="Polygon" name="content[Polygon]" value="true" checked>
       <label for="Polygon">Polygon</label>
-      <input type="checkbox" id="Marker" name="content[actions][Marker]" value="true" checked>
+      <input type="checkbox" id="Marker" name="content[Marker]" value="true" checked>
       <label for="Marker">Marker</label>
-      <input type="checkbox" id="Rectangle" name="content[actions][Rectangle]" value="true" checked>
+      <input type="checkbox" id="Rectangle" name="content[Rectangle]" value="true" checked>
       <label for="Rectangle">Rectangle</label>
-      <input type="checkbox" id="Circle" name="content[actions][Circle]" value="true" checked>
+      <input type="checkbox" id="Circle" name="content[Circle]" value="true" checked>
       <label for="Circle">Circle</label>
-      <input type="checkbox" id="Polyline" name="content[actions][Polyline]" value="true" checked>
+      <input type="checkbox" id="Polyline" name="content[Polyline]" value="true" checked>
       <label for="Polyline">Polyline</label>
     </div>
 
@@ -58,22 +58,40 @@
       <label for="schema">Schema (mit Semikolons trennen)</label>
       <input type="text" id="schema" name="schema" value="Asave" required pattern="^((\w)+;)*(\w)+[^;]$" title="aSave;bSave;cSave oder Übernahme003;Abbruch110">
     </div>
+    <div>
+      <p><b>Karten </b></p>OpenStreetMap
+      <input type="checkbox" id="OpenStreetMap" name="content[OpenStreetMap]" value="true" checked>
+      <label for="OpenStreetMap">OpenStreetMap</label>
+      <input type="checkbox" id="CartoDB.Positron" name="content[CartoDb.Positron]" value="true" checked>
+      <label for="CartoDB.Positron">CartoDB Positron</label>
+      <input type="checkbox" id="CartoDB.DarkMatter" name="content[CartoDB.DarkMatter]" value="true" checked>
+      <label for="CartoDB.DarkMatter">CartoDB DarkMatter</label>
+      <input type="checkbox" id="CartoDB.Voyager" name="content[CartoDB.Voyager]" value="true" checked>
+      <label for="CartoDB.Voyager">CartoDB Voyager</label>
+      <input type="checkbox" id="OpenStreetMap.Mapnik" name="content[OpenStreetMap.Mapnik]" value="true" checked>
+      <label for="OpenStreetMap.Mapnik">OpenStreetMap Mapnik</label>
+      <input type="checkbox" id="OpenTopoMap" name="content[OpenTopoMap]" value="true" checked>
+      <label for="OpenTopoMap">OpenTopoMap</label>
+      <input type="checkbox" id="Stadia.AlidadeSmoothDark" name="content[Stadia.AlidadeSmoothDark]" value="true" checked>
+      <label for="Stadia.AlidadeSmoothDark">Stadia AlidadeSmoothDark</label>
+      <input type="checkbox" id="Stadia.OSMBright" name="content[Stadia.OSMBright]" value="true" checked>
+      <label for="Stadia.OSMBright">Stadia OSMBright</label>
+      <input type="checkbox" id="Esri.WorldImagery" name="content[Esri.WorldImagery]" value="true" checked>
+      <label for="Stadia.OSMBright">Stadia OSMBright</label>   
+    </div>
     <p><b>Datentypen</b></p>
     <textarea id="DataTypeInput" name="DataTypeInput" rows="4" cols="50" required pattern="^((.*:(Number|String|Boolean),\n)*(.*:(Number|String|Boolean)))$" title ="Attribute1:String,
     AttributBeispiel:Number,
     Attribute1245:Boolean">Attribute1:String,
 AttributBeispiel:Number,
 Attribute1245:Boolean </textarea>
-    <p><b>Syntax</b>  (Attributsnamen sind beliebig, aber keine Leerzeichen; Datentypen String, Number oder Boolean)
+    <p><b>Syntax</b>  (Attributsnamen sind beliebig, aber keine Leerzeichen; Datentypen String (SomeText), Number (123) oder Boolean (true oder false))
       <br> Attribute1:String, <br>
       AttributBeispiel:Number, <br>
       Attribute1245:Boolean <br>
        </p>
-       
-       <input type="input" name="stringinput" required pattern="^\S+@\S+\.\S+$" title="example@mail.com &#010; exampleinios@bobo.de">
 
-
-    <div>
+      <div>
       <button type="submit">Submit</button>
     </div>
   </fieldset>
@@ -81,7 +99,10 @@ Attribute1245:Boolean </textarea>
 
   <script>
         /*
+    <input type="checkbox" id="OpenStreetMap" name="content[maps][OpenStreetMap]" value="true" checked>
+      <label for="OpenStreetMap">CartoDB Positron</label>
     
+
     Schema ^((\w)+;)*(\w)+[^;]$
     Datentyp ^((.*:(Number|String|Boolean),\n)*(.*:(Number|String|Boolean)))$ textarea unterstützt pattern leider nicht :(
     String ^.*$

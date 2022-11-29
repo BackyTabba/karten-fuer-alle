@@ -14,11 +14,86 @@ const { mongoAdmin, mongoAdminPW } = require('./keys');
 const { type, getPriority } = require('os');
 const { throws } = require('assert');
 const { json } = require('express');
+const fsExtra = require('fs-extra');
+
+//const mkdirp =require('mkdirp');
 
 var port=3000
 server.listen(port, () => {
     console.log("listening on port " + port + "! :)");
   });
+
+//Database
+countNumber=0;
+
+
+var conntection= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: "Tool"},()=>{console.log("Mongoose Connection to Tools successful")})   
+const toolHistorySchema = new mongoose.Schema({
+    countNumber: Number,
+    name: String,
+    tool: Array 
+})
+toolHistory=conntection.model("Tool",toolHistorySchema);
+/*
+//https://stackoverflow.com/questions/19751420/mongoosejs-how-to-find-the-element-with-the-maximum-value
+toolHistory.find({}).sort({score : -1}).limit(1).exec((err,data)=>{
+    console.log("toolHistory countNumber: err",err,"data",data)
+    console.log(data[0].countNumber)
+    if(data[0].countNumber>=0){
+        countNumber=data[0].countNumber+1;
+}});*/
+
+// find the max countNumber of all Tools
+toolHistory.aggregate(
+    [{ $group: { _id: null, maxCountNumber: { $max: '$countNumber' }}}
+  , { $project: { _id: 0, maxCountNumber: 1 }}]
+  , function (err, res) {
+  if (err) return handleError(err);
+  console.log(res); // [ { maxCountNumber: 2 } ]
+  countNumber=res[0].maxCountNumber
+  console.log("countNumber",countNumber)
+  toolHistory.find({countNumber:countNumber},null,(err,doc)=>{
+    console.log(doc)
+    console.log(doc[0].tool[0])
+    currentTool=new Tool(doc[0].tool[0])
+})
+  
+});
+
+
+sleep(2000);
+
+//--Database
+
+/*
+fs.rm("\\build", { recursive: true, force: true },()=>{
+    console.log("Deleted build, recreating")
+    fs.mkdir("\\build",()=>{
+        console.log("created build")
+        fs.mkdir("\\build/html",(err)=>{
+            if(err) console.log(err)
+            console.log("build/html created")
+            
+        })
+    })
+});*/
+fsExtra.emptyDir("build").then(()=>{
+fsExtra.ensureDir("build/html")
+.then(() => {
+  console.log('success!')
+  fsExtra.emptyDir("build/html");
+})
+.catch(err => {
+  console.error(err)
+})})
+
+
+        //https://github.com/nodejs/node/issues/17921 !!!!!!!!!!!!!!!!
+
+//const made = mkdirp.sync('\\build\\html')
+
+
+
 
   //socket.io
   io.on('connection', (socket) => {
@@ -76,9 +151,9 @@ morgan.format('myformat', ':date[Europe/Germany] | :method | :url | :response-ti
 filename = __dirname+"/src/html/input.txt";
 var content, history, domainOperations;
 var parametercontent={}
-var parameterorder=["start",["Polygon","Marker","Rectangle","Circle","Polyline"],"end","open","save","end2"]
+var parameterorder=["start","Polygon","Marker","Rectangle","Circle","Polyline","OpenStreetMap","CartoDB.Positron","CartoDB.DarkMatter","CartoDB.Voyager","OpenStreetMap.Mapnik","OpenTopoMap","Stadia.AlidadeSmoothDark","Stadia.OSMBright","Esri.WorldImagery","open","save","end"]
 
-var incomingCall={
+/*var incomingCall={
     ToolName: 'Template',
     content: {
       start: 'true',
@@ -97,7 +172,7 @@ var incomingCall={
     schema: 'Asave;Bsave;Csave;Dsave',
     DataTypeInput:'Attribute1:String,\r\nAttributBeispiel:Number,\r\nAttribute1245:Boolean'
   }
-  TempTool= new Tool(incomingCall)
+  TempTool= new Tool(incomingCall)*/
 
 
 
@@ -107,9 +182,13 @@ initiateParametercontent();
 
 
 app.use('/node_modules', express.static(__dirname+"/node_modules/"));
+
 app.use("/",express.static(__dirname+"/src/html/"));
 app.use("/leaflet-providers",express.static(__dirname+"/node_modules/leaflet-providers/leaflet-providers.js"))
-
+app.use("/app", express.static(__dirname+"/build/"))
+/*app.get("/app",(req,res)=>{
+    req.send(res.sendFile(__dirname+"/build/html/index.html"))
+})*/
 app.get("/index",(req,res,next)=>{
     res.sendFile(__dirname+"/src/html/index.html")
     })
@@ -137,7 +216,7 @@ app.delete("/upload",(req,res)=>{
         //req.body._id,{ "object": req.body.content,"_id":req.body._id},
         //{upsert: true,new: true,returnDocument:'after'},
     
-    TempTool.DB.content.deleteOne({_id:req.body._id},(error,doc)=>{
+    currentTool.DB.content.deleteOne({_id:req.body._id},(error,doc)=>{
         if(error!=null){
             console.log("error",error)
         }else{
@@ -149,11 +228,73 @@ app.delete("/upload",(req,res)=>{
 })
 app.get("/schema",(req,res)=>{
     console.log("schema requiest")
-    TempTool.DB.DataDatadomainOperations.find({},(err,docs)=>{console.log("..sending schema..");res.send(docs)})
+    currentTool.DB.DataDatadomainOperations.find({},(err,docs)=>{console.log("..sending schema..");res.send(docs)})
+})
+app.get("/download",(req,res)=>{
+    currentTool.DB.content.find({}, function (err, docs) {
+       // res.download(String(docs))
+       var filename = 'user.json';
+       var mimetype = 'application/json';
+       res.setHeader('Content-Type', mimetype);
+       res.setHeader('Content-disposition','attachment; filename='+filename);
+       out="";
+
+       for(x of docs){
+        console.log(x)
+        out+=JSON.stringify(JSON.parse(x.object))
+       }
+       res.send(out)
+    })
+    /*var user = {"name":"azraq","country":"egypt"};
+    var json = JSON.stringify(user);
+    var filename = 'user.json';
+    var mimetype = 'application/json';
+    res.setHeader('Content-Type', mimetype);
+    res.setHeader('Content-disposition','attachment; filename='+filename);
+    res.send( json );*/
+
 })
 app.get("/upload",(req,res)=>{
-    TempTool.EtablishConnection();
-    TempTool.DB.content.find({}, function (err, docs) {res.send(docs)})
+    temp=""
+    //TempTool.EtablishConnection();
+    currentTool.DB.content.find({}, function (err, docs) {
+        //console.log(docs)
+        temp=docs
+        currentTool.DB.DataInput.find({},function(err,docs){
+            console.log(Array.isArray(temp))
+            console.log(temp[0])
+            console.log(docs[0])
+            for (let index = 0; index < temp.length; index++) {
+                temp[index]._id;
+                let result = docs.filter(obj => {
+                    return obj._id == temp[index]._id;
+                  })
+                //delete result._id
+                //delete result.__v
+                //console.log(result)
+                //temp[index].object=JSON.parse(temp[index].object).properties={...temp[index].object.properties,...result}
+                //console.log("json parse",JSON.parse(temp[index].object).properties)
+                //JSON.parse(temp[index].object).properties
+                //console.log("json parse new object",{})
+                tempresult={}
+                for(x of result){
+                    //console.log(x)
+                    tempresult=JSON.parse(JSON.stringify(x))
+                    delete tempresult._id
+                    delete tempresult.__v
+                }
+                TempObject=JSON.parse(temp[index].object)
+                TempObject.properties={...TempObject.properties,...tempresult}
+                console.log(TempObject)
+                temp[index].object=JSON.stringify(TempObject)
+
+            }   
+            res.send(temp)
+            //console.log(docs)
+        })
+        
+    })
+
     //console.log(data)
     //res.send(data);
 })
@@ -161,7 +302,7 @@ app.get("/history",(req,res)=>{
     console.log("query",req.query);
     console.log(req.query._id)
     //console.log("/popup req.body:",req)
-    TempTool.DB.history.find({"RealID":req.query._id}, function (err, docs) {
+    currentTool.DB.history.find({"RealID":req.query._id}, function (err, docs) {
         console.log(docs);
         res.send(docs)})
 })
@@ -170,7 +311,7 @@ app.get("/popup",(req,res)=>{
     console.log(req.query._id)
     //console.log("/popup req.body:",req)
 
-    TempTool.DB.DataInput.findById(req.query._id, function (err, docs) {
+    currentTool.DB.DataInput.findById(req.query._id, function (err, docs) {
         console.log(docs);
         res.send(docs)})
 })
@@ -180,20 +321,19 @@ app.post("/popup",(req,res)=>{
     console.log("req.body._id",req.body._id)
     //console.log(TempTool.DB.DataInput.log())
     console.log(JSON.stringify(req.body))
-    TempTool.DB.DataInput.findByIdAndUpdate(req.body._id,req.body,{upsert: true,new: true,returnDocument:'after'},
+    temp=""
+    currentTool.DB.DataInput.findByIdAndUpdate(req.body._id,req.body,{upsert: true,new: true,returnDocument:'after'},
         (error, doc) => {
-            if(error!=null){
-            console.log("error",error)
-        }else{
             console.log("doc",doc);
-        }
+            temp=doc
+        
 
-        const count = TempTool.DB.history.countDocuments({RealID:req.body._id},(err,count)=>{
+        const count = currentTool.DB.history.countDocuments({RealID:req.body._id},(err,count)=>{
             console.log('there are %d entrys for id in history already', count);
             if(count==0){
                 req.body.DomainOperations="Initialize"
             }
-            TempTool.DB.history.create({RealID:req.body._id,version:count,DataDatadomainOperation:req.body.DomainOperations,value_post:req.body},{returnDocument:'after'},(error, doc) => {
+            currentTool.DB.history.create({RealID:req.body._id,version:count,DataDatadomainOperation:req.body.DomainOperations,value_post:req.body},{returnDocument:'after'},(error, doc) => {
                 if(error!=null){
                 console.log("error",error)
             }else{
@@ -203,8 +343,9 @@ app.post("/popup",(req,res)=>{
         
         
         })
+        res.status(200).send(temp);
     })
-    res.sendStatus(200);
+    //
     //res.set("Connection", "close");
 })
 
@@ -216,7 +357,7 @@ app.post("/upload",(req,res)=>{
     //Model.findByIdAndUpdate(id, { name: 'jason bourne' }, options, callback)
     //Model.findOneAndUpdate(query, { name: 'jason bourne' }, options, callback)
     //console.log(req.body)
-    data = TempTool.DB.content.findByIdAndUpdate(req.body._id,{ "object": req.body.content,"_id":req.body._id},{upsert: true,new: true,returnDocument:'after'},
+    data = currentTool.DB.content.findByIdAndUpdate(req.body._id,{ "object": req.body.content,"_id":req.body._id},{upsert: true,new: true,returnDocument:'after'},
     (error, doc) => {
          if(error!=null){
             console.log("error",error)
@@ -240,21 +381,44 @@ app.post("/upload",(req,res)=>{
     
     })
 
-app.post("/",(req,res)=>{
+app.post("/",async(req,res)=>{
     console.log("Post incoming: ",req.body)
-    currentTool = new Tool(req.body);
-    currentTool.EtablishConnection();
+    currentTool=new Tool(req.body);
+    console.log("currentTool.name",currentTool.name)
+    /*toolHistory.find({},(doc,err)=>{
+        console.log("doc",doc,"error",err,err.name)
+        if(err){
+            console.log("error",err)
+        }else{
+            console.log("doc",doc);
+            if(doc=={}) console.log("doc=={}")
+        }
+    })*/
+    //console.log({name:currentTool.name,countNumber:countNumber,tool:{"name":currentTool.name,"schema":currentTool.schema,"DataTypeInput":currentTool.DataTypeInput,"content":currentTool.content}});
+   // const doc = new User({ email: 'bill@microsoft.com' });
+//await doc.save();
+    
+    toolHistory.create({"name":currentTool.name,"countNumber":++countNumber,"tool":[currentTool.param]},(doc,error)=>{
+            console.log(error._doc)
+            console.log("Tool "+currentTool.name+" created in DB");
+    })
+    //currentTool.EtablishConnection();
     //save(req.body.content)
     //res.send(currentTool.createOutputHTML())
     /*res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")*/
-    res.redirect("/output.html")
+    //res.sendFile(__dirname+"/src/html/test.html")
+    await sleep(3000);
+    //res.send(currentTool.createOutputHTML())
+    //res.sendFile(__dirname+"/build/html/index.html")
+   // console.log("sendfile /build/html/index.html")
+   res.redirect("/app/html")
     
     })
-app.get("/abba",(req,res)=>{
+app.get("/abba",(req,res)=>{ 
     //JsonFromString();
-    console.log(TempTool.getPopupString())
-    res.send(TempTool.getPopupString())
+    console.log(currentTool.getPopupString())
+    res.send(currentTool.getPopupString())
 })
 
 //DB-Routen
@@ -264,6 +428,7 @@ app.get("/abba",(req,res)=>{
  * Schreibt Inhalte in die Variable parametercontent aus der Inputdatei (Speicherort definiert in der Variable "filename")
  */
 function initiateParametercontent(){
+    //fs.unlinkSync(filename);
     fs.readFile(filename, 'utf8', function(err, data) {
         if (err) throw err;
         //Findet Marker nach dem Schema //$Marker$
@@ -337,9 +502,10 @@ function save(param){
 }
 function Tool(param){
     this.name=param.ToolName;
+    this.param=param;
     this.schema=Schema(param.schema);
     this.DataTypeInput=JsonFromString(param.DataTypeInput);
-    console.log(this.schema)
+   // console.log(this.schema)
     this.content=param.content;
     this.DB={}
     this.DB.content={};
@@ -349,36 +515,80 @@ function Tool(param){
     this.createOutputHTML= function(...args){
         output=""
         this.outputString=output;
-
+        //console.log(parametercontent)
+        //console.log()
         for(x of parameterorder){ // parameterorder=["start",["Polygon","Marker","Rectangle","Circle","Polyline"],"end","open","save","end2"]
-             if(this.content[x]=="true"){
+           // console.log("Tool createOutputHTML Aktueller Parameter "+x, "this.content[x]",this.content[x], 'this.content[x]=="true"',this.content[x]=="true")
+            if(this.content[x]=="true"){
                  output+=parametercontent[x]
              }
              if(x instanceof Object){ //Falls parameterorder ein Objekt enthält aka ["Polygon","Marker","Rectangle","Circle","Polyline"]
-                 i=0;
+                console.log("instance of Object")
                  for (y of x){ //Jeden String des Objekts nachschlagen und an output anhängen
                     //schönere Variante mit Iterator umsetzen? https://robdodson.me/posts/javascript-design-patterns-iterator/
-                     if (y!=undefined&&typeof(y)=="string"&&this.content.actions[y]=="true"){ //unschön weil actions vorgegeben werden muss, da array mit object verglichen wird und das object einen namen hat, den das array nicht kennen kann
+                     /*if (y!=undefined&&typeof(y)=="string"&&this.content.actions[y]=="true"){ //unschön weil actions vorgegeben werden muss, da array mit object verglichen wird und das object einen namen hat, den das array nicht kennen kann
                          output+=parametercontent[y]
                      }
                      if(i<Object.keys(this.content.actions).length-1){
                          output+=","
                      }
-                     i++;
+                     i++;*/
+                     if (y!=undefined&&typeof(y)=="string"&&this.content.actions[y]=="true"){
+                     //console.log("zweite if schleife)output+=")
+                    }
                  }
              }
          }
          this.OutputHTML=output;
          return output;
     }
-    this.save=function(){
+    this.CreateEnvVars=function(){
+        var data="ToolName=\'"+this.name+"\'\n"
+        data+="PopupString=\'"+this.getPopupString()+"\'"
+    
+        write('./build/html/envVars.js', data, "Saved build/envVars.js!");
+    }
+    this.CreateOutputHtmlFile=async function(){
         if(this.OutputHTML==""){
             this.createOutputHTML()
         }
-        fs.writeFile('src\\html\\output.html',this.OutputHTML , function (err) {
+        write('./build/html/index.html',this.OutputHTML,"Saved build/index.html");
+        /*fs.writeFile('/build\\html\\index.html',this.OutputHTML , function (err) {
             if (err) throw err;
             console.log('Saved output.html!');
-            });
+            });*/
+    }
+    this.CopyEssentials=function(){
+        //func.js
+    fs.readFile("src\\html\\func.js", 'utf8', function(err, data) {
+        if (err) throw err;
+                write('./build/html/func.js', data,"Saved build/html/func.js!")             
+                /*fs.writeFile('/build\\html\\func.js', data, function (err) {
+                    if (err) throw err;
+                    console.log('Saved build\\html\\func.js!');
+                    });*/
+      });
+      //ColorPicker.js
+      fs.readFile("src\\html\\ColorPicker.js", 'utf8', function(err, data) {
+        if (err) throw err;                
+                fs.writeFile('./build/html/ColorPicker.js', data, function (err) {
+                    if (err) throw err;
+                    console.log('Saved build/html/ColorPicker.js!');
+                    });
+      });
+      //style.css
+      fs.readFile("src\\html\\style.css", 'utf8', function(err, data) {
+        if (err) throw err;                
+                fs.writeFile('./build/html/style.css', data, function (err) {
+                    if (err) throw err;
+                    console.log('Saved build/html/style.css!');
+                    });
+      });
+    }
+    this.save=function(){
+        this.CopyEssentials();
+        this.CreateOutputHtmlFile();
+        this.CreateEnvVars();
     }
     this.EtablishConnection= async function EtablishConnection(){
         var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
@@ -397,16 +607,18 @@ function Tool(param){
         const domainoperationsSchema = new mongoose.Schema({
             wert: String
         })
+
+
         this.DB.content=conn.model("content",contentSchema);
         this.DB.history=conn.model("history",historySchema);
         this.DB.DataDatadomainOperations=conn.model("domainOperations",domainoperationsSchema);
-        console.log(this.schema)
+        //console.log(this.schema)
         if(this.schema.length>1){
             for (x of this.schema) {//Model.findOneAndUpdate(query, { name: 'jason bourne' }, options, callback)
                 this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":x},{"wert":x},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
             }
         }else{
-            this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":this.schema},{"wert":this.schema},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
+            this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":this.schema[0]},{"wert":this.schema[0]},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
         }
         if(this.DataTypeInput.length<=1){
             console.log("DataTypeInput kleinergleich 1")
@@ -418,8 +630,7 @@ function Tool(param){
                     werte: String,
                     value_pre: String,
                     value_post: String
-                }*/this.DataTypeInput)
-               
+                }*/this.DataTypeInput)          
           //  }
           this.DB.DataInput=conn.model("Data",DataInputSchema);
           this.DB.DataInput.log=()=>{
@@ -439,6 +650,7 @@ function Tool(param){
             output[i]=x;
             i++;
         }
+        //console.log(this.name+".getDataKeys() :"+output)
         return output
     }
     console.log("DataInput Schema:")
@@ -467,95 +679,41 @@ function Tool(param){
        return outputstr+='</fieldset>\n</form>';
     }
     this.getPopupString=()=>{
-
-        outputstr=`
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script
-			  src="https://code.jquery.com/jquery-3.6.1.min.js"
-			  integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
-			  crossorigin="anonymous"></script>
-        <form action="/popup" method="POST" id="take"> \n     <fieldset>\n`
+        outputstr='<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>\\n        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>\\n        <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>\\n        <form action="/popup" method="POST" id="take"> \\n     <fieldset>\\n'
         console.log("getPopupString().getDataKeys(): ",this.getDataKeys())
         for (x of this.getDataKeys()){
             validationPattern="";
             title="";
-            console.log("getPopupString() this.DataTypeInput[x].name:",this.DataTypeInput[x].name)
+            //console.log("getPopupString() this.DataTypeInput[x].name:",this.DataTypeInput[x].name)
                 if(x!=="_id"){
                 switch(this.DataTypeInput[x].name){
                     case "String": validationPattern='"^.*$"'; title="Ab-cDe.F54,2sg"; break
-                    case "Number": validationPattern='"^\\d*(.|,)?\\d*$"'; title="133245553.055 \| 113124 \| 1151515,04"; break
-                    case "Boolean": validationPattern='"^(True|true|False|false)$"'; title="True \| False"; break
+                    case "Number": validationPattern='"^\\\\d*(.|,)?\\\\d*$"'; title="133245553.055 \| 113124 \| 1151515,04"; break
+                    case "Boolean": validationPattern='"^(true|false)$"'; title="true \| false"; break
                     default : console.log("getPopupString(): Kein vailidationPattern passt..."); validationPattern="^.*$"; break
                 }
                 //console.log("getPopupString() nach Ermittlung des validation Patterns: ",outputstr, validationPattern,title)
-                outputstr+='<div><label for="'+x+'">'+x+'</label><input type="text" id="'+x+'" name="'+x+'" value="" required pattern='+validationPattern+' title="'+title+'"></div> \n'
+                outputstr+='<div><label for="'+x+'">'+x+'</label><input type="text" id="'+x+'" name="'+x+'" value="" required pattern='+validationPattern+' title="'+title+'"></div> \\n'
                 }
             }
 
         //Select
         //console.log(this.schema)
-        outputstr+='<div><select name="DomainOperations" id="DomainOperations">\n'
+        outputstr+='<div><select name="DomainOperations" id="DomainOperations">\\n'
         for(x of this.schema){
-                outputstr+='"<option value="'+x+'">'+x+'</option>+\n'
+                outputstr+='"<option value="'+x+'">'+x+'</option>+\\n'
 
         }
-        outputstr+='</select>\n '
+        outputstr+='</select>\\n '
         outputstr+='<input type="text" id="_id" name="_id" hidden="true" value=${value}>'
         outputstr+='<input type="submit" value="Senden">'
         outputstr+=' <div hidden="true" name="Message" id="Message">Refreshing...</div>'
         outputstr+=' <div style="color:green" hidden="true" name="SubmitSuccess" id="SubmitSuccess">Success</div>'
-       outputstr+='</fieldset>\n</form>';
+       outputstr+='</fieldset>\\n</form>';
        outputstr+='<div><label for="history">Objekthistorie</label></div>'
-       outputstr+='<textarea id="history" name="history rows="6" cols="30"></textarea>'
-       //https://stackoverflow.com/questions/1960240/jquery-ajax-submit-form
-       outputstr+=`
-       <script>
-       var frm = $('#take');
-       $('#Message').show()
-
-        $.get("/history",{"_id":$('#_id').attr("value")},(data)=>{
-            console.log(data)
-            if(data=={}){
-                $('#DomainOperations').hide()
-            }
-            //historyfeld value auffüllen
-            for (x of data){
-                $('#history').val($('#history').val()+\\n+x.DataDatadomainOperation)
-                console.log(x.DataDatadomainOperation)
-            }
-            $('#Message').hide()
-        })
-        $.get("/popup",{_id:$('#_id').val()},(data)=>{
-            console.log(data)
-            for(x in data){
-                $("#"+x).val(data[x])
-                }
-        })
-       </script>
-        <script type="text/javascript">
-        var frm = $('#take');
-
-                frm.submit(function (e) {
-
-                    e.preventDefault();
-
-                    $.ajax({
-                        type: frm.attr('method'),
-                        url: frm.attr('action'),
-                        data: frm.serialize(),
-                        success: function (data) {
-                            console.log('Submission was successful.');
-                            console.log(data);
-                            $('#SubmitSuccess').removeAttr('hidden');
-                        },
-                        error: function (data) {
-                            console.log('An error occurred.');
-                            console.log(data);
-                        },
-                    });
-                });
-            </script>`
+       outputstr+='<textarea id="history" name="history rows="6" cols="20"></textarea>'
+       
+       
        
 
 
@@ -635,6 +793,7 @@ function CopyFiles(ENVvariables){
     });
 
 }
+
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     imageName=imageName.replace(/ /g,"-")
@@ -673,17 +832,22 @@ function JsonFromString(input){
     output["_id"]=String
     for(x in output){
         switch(output[x]){
-            case "Number"|"number":
+            case "Number":
+            case "number":
                 output[x]=Number
                 break;
-            case "String"|"string":
+            case "String":
+            case "string":
                 output[x]=String
                 break;
-            case "Boolean"|"boolean":
+            case "Boolean":
+            case "boolean":
                 output[x]=Boolean
                 break;
         }
+        console.log("JsonFromString x:"+x,output[x])
     }
+    console.log("JsonFromString:"+output)
     return output
 }
 function Schema(input){
@@ -701,6 +865,20 @@ function Testfunktion(){
     console.log(abc)
     return abc
 }
+//https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time
+function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+  async function write(path, data, endmessage){
+    console.log("Should write at "+path)
+    //console.log("content",data)
+    fs.writeFileSync(path, data, function (err) {
+        if (err) throw err;
+        console.log(endmessage);
+        });
+  }
 
 process.on('SIGTERM', function () {
     server.close(function () {
