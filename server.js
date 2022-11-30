@@ -118,11 +118,11 @@ fsExtra.ensureDir("build/html")
 //initial
 var ports=[];
 var startingport=3001;
-var portcount=10;
-ports.add=function(Tool){
+var portcount=1;
+ports.add=function(tool){
     if(ports.length==portcount-1){ //ports volle länge, also erstes element löschen
         del=ports.shift()
-        console.log(del.tool.ToolName+" is removed from Ports")
+        console.log(del.tool.name+" is removed from Ports")
     }
     ports.push({"tool":tool,"port":startingport+ports.length})
     return ports[ports.length]
@@ -130,7 +130,7 @@ ports.add=function(Tool){
 }
 ports.getPort= function (Tool){
     for(x in ports){
-        if (x.tool.ToolName==Tool.ToolName){
+        if (x.tool.name==tool.name){
             return x;
         }
     }
@@ -750,11 +750,13 @@ async function EtablishConnection(Tool){
     DataDatadomainOperations=conn.model("domainOperations",domainoperationsSchema);
 }
 
-function GenerateTool(ENVvariables){
-    CreateFrontend(parameter) //...
+function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool-Server?
+    //CreateFrontend(parameter) //...
     CopyFiles(ENVvariables); //server.js, dockerfile, package.json
-    imagename=CreateDockerImage() //returns name of DockerImage, projekt Github?
-    port=getPort(Tool);//next free space of Ports
+    //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
+    imagename="leem_01/:"+tool.name.trim().replace(" ","-")
+    ports.add(tool);
+    port=ports.getPort(tool);//next free space of Ports
     CreateCompose(port,imagename,ENVvariables);
     BindCompose();//bindCompose under Port (Start) ?
 }
@@ -789,6 +791,14 @@ function CopyFiles(ENVvariables){
                 fs.writeFile('build\\Dockerfile', data, function (err){
                     if (err) throw err;
                     console.log('Saved build\\Dockerfile!');
+                    });
+    });
+
+    fs.readFile("template\\package.json", 'utf8',(err, data)=>{
+        if (err) throw err;              
+                fs.writeFile('build\\package.json', data, function (err){
+                    if (err) throw err;
+                    console.log('Saved build\\package.json!');
                     });
     });
 

@@ -16,7 +16,7 @@
 - [x] geöffnete Dateien an Server senden
 - [x] downzuloadene Dateien vom Server bekommen
 - [ ] Autogenerate Docker-Version
-- [ ] Write EnvVariables
+- [x] Write EnvVariables
 - [ ] Export
 
 - [ ] Mongodb persistent data
@@ -56,19 +56,28 @@
 - [x] Daten hochladen mit DB verknüpfen
 - [x] Daten runterladen mit DB verknüpfen
 
-- [ ] Neues Tool einrichten mit DB verknüpfen und Ports variable (Name = Identifikation)
-- [ ] Tool server_template.js zusammenstellen
-- [ ] node packages und packages-json zusammenstellen
+- [x] Neues Tool einrichten mit DB verknüpfen und Ports variable (Name = Identifikation)
+- [x] Tool server_template.js zusammenstellen
+- [x] node packages und packages-json zusammenstellen
+- [ ] den buildprozess manuell testen (npm start und schauen)
+- [ ] dockerfile lokal builden und testen ( attachen und anschauen )
+- [ ] docker(-compose) testen (herausfinden wie man builded und zu dockerhub uploaded)
+- [ ] CreateDockerImage() bauen und lokal testen
+- [ ] Docker-Compose in image reinkopieren und lokal testen
+- [ ] mit manueller SSH-Verbindung CerateDockerImage() und Compose start auf Server testen
+- [ ] SSH-Verbindung mit Zertifikat aufbauen 
+- [ ] mit SSH-Verbindung CreateDockerImage() und Compose start auf Server testen
 
 - [ ] Zusammenkopieren von 
-    - [ ] Tool:server.js
+    - [x] Tool:server.js
     - [x] Tool:index.html (=output.html)
-    - [ ] Tool:node Packages
-    - [ ] Tool:node json.lock
-    - [ ] 
+    - [x] Tool:node package.json
+    - [ ] ~~Tool:node json.lock~~
+    - [ ] docker-compose nur(and only) in image nötig?
 
-- [ ] Check testdata
-- [ ] Advanced geospatial tool
+- [x] Check testdata
+- [ ] ~~Advanced geospatial tool~~
+- [ ] shorten testdata?
 
 ### Optional/Lowpriority
 - [x] Parameter in Datenbank
