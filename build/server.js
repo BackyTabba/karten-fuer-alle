@@ -10,15 +10,16 @@ const io = new Server(server);
 //var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 var fs = require('fs')
 const keys = require("./keys");
-const { mongoAdmin, mongoAdminPW, port, Tool } = require('./keys');
+const { mongoAdmin, mongoAdminPW, port, params } = require('./keys');
 const { type, getPriority } = require('os');
 const { throws } = require('assert');
 const { json } = require('express');
 const fsExtra = require('fs-extra');
-require("./tool.js");
+//require("./tool.js");
 server.listen(port, () => {
     console.log("listening on port " + port + "! :)");
   });
+  currentTool=new Tool(params)
 
     //socket.io
     io.on('connection', (socket) => {
@@ -46,10 +47,6 @@ app.use("/app", express.static(__dirname+"/build/"))
 app.get("/index",(req,res,next)=>{
     res.sendFile(__dirname+"/html/index.html")
     })
-app.get("/overview",(req,res,next)=>{
-    res.sendFile(__dirname+"/html/overview.html")
-    res.statusCode=200
-    })
 app.get("/",(req,res,next)=>{
     res.redirect("/index");
     })
@@ -57,14 +54,8 @@ app.get("/test",(req,res,next)=>{
     res.sendFile(__dirname+"/html/test.html")
     //res.sendStatus(200)
     })
-app.get("/params",(req,res)=>{
-    console.log("Parameterrequest:")
-    console.log(parametercontent)
-    res.redirect("/")
-})
 app.delete("/upload",(req,res)=>{
     console.log("incoming delete order",req.body)
-
 
     // data = TempTool.DB.content.findByIdAndUpdate(
         //req.body._id,{ "object": req.body.content,"_id":req.body._id},
@@ -164,3 +155,111 @@ app.post("/",async(req,res)=>{
    res.redirect("/app/html")
     
     })
+    function Tool(param){
+        this.name=param.ToolName;
+        this.param=param;
+        this.Schema=function Schema(input){
+            input=input.replace(/ /g,"").split(";");
+            input = [...new Set(input)] //only unique values
+            return input;
+        }
+        this.JsonFromString=function JsonFromString(input){
+
+            input=input.replace(/ /g,"").replace(/,/g,'","').replace(/:/g,'":"').replace(/[\r\n]/g, "");
+            input='{"'+input+'"}'
+            output = JSON.parse(input)
+            output["_id"]=String
+            for(x in output){
+                switch(output[x]){
+                    case "Number":
+                    case "number":
+                        output[x]=Number
+                        break;
+                    case "String":
+                    case "string":
+                        output[x]=String
+                        break;
+                    case "Boolean":
+                    case "boolean":
+                        output[x]=Boolean
+                        break;
+                }
+                console.log("JsonFromString x:"+x,output[x])
+            }
+            console.log("JsonFromString:"+output)
+            return output
+        }
+
+        this.schema=this.Schema(param.schema);
+        this.DataTypeInput=this.JsonFromString(param.DataTypeInput);
+        this.content=param.content;
+        this.DB={}
+        this.DB.content={};
+        this.DB.history={};
+        this.DB.DataDatadomainOperations={};
+        this.DB.DataInput={};
+        this.EtablishConnection= async function EtablishConnection(){
+            var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
+            const contentSchema = new mongoose.Schema({
+                _id: Number,
+                "object": String
+            });
+            const historySchema = new mongoose.Schema({
+                RealID:Number,
+                version: Number,
+                DataDatadomainOperation: String,
+                value_post: Array 
+            })
+            const domainoperationsSchema = new mongoose.Schema({
+                wert: String
+            })
+            this.DB.content=conn.model("content",contentSchema);
+            this.DB.history=conn.model("history",historySchema);
+            this.DB.DataDatadomainOperations=conn.model("domainOperations",domainoperationsSchema);
+            if(this.schema.length>1){
+                for (x of this.schema) {//Model.findOneAndUpdate(query, { name: 'jason bourne' }, options, callback)
+                    this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":x},{"wert":x},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
+                }
+            }else{
+                this.DB.DataDatadomainOperations.findOneAndUpdate({"wert":this.schema[0]},{"wert":this.schema[0]},{upsert: true,new: true},(err,docs)=>{console.log("DDO anlegen",err,docs)})
+            }
+            if(this.DataTypeInput.length<=1){
+                console.log("DataTypeInput kleinergleich 1")
+            }else{
+                    const DataInputSchema = new mongoose.Schema(
+                    this.DataTypeInput)
+            this.DB.DataInput=conn.model("Data",DataInputSchema);
+            this.DB.DataInput.log=()=>{
+                output="";
+                LocalDTI=this.DataTypeInput;
+                LocalDTI["_id"]=String;
+                for(x in LocalDTI){
+                    output=x+":"+this.LocalDTI[x].name+"\n"
+                }
+                return output;
+            }
+            }
+        }
+        this.getDataKeys=function(){
+            output=[]; i=0;
+            for (x in this.DataTypeInput){
+                output[i]=x;
+                i++;
+            }
+            //console.log(this.name+".getDataKeys() :"+output)
+            return output
+        }
+        console.log("DataInput Schema:")
+        for(x in this.DataTypeInput){
+            console.log(x+":"+this.DataTypeInput[x].name)
+        }
+        this.EtablishConnection();
+
+
+    }
+process.on('SIGTERM', function () {
+    server.close(function () {
+      process.exit(0);
+    });
+})
+

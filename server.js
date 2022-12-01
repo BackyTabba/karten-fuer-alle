@@ -777,6 +777,7 @@ function CopyFiles(envVariables){
     for(x in envVariables){
         OutputEnvVariables+=",\n  "+x+":process.env.ENV_"+x.toUpperCase();
     }
+    OutputEnvVariables+=",\n  currentTool:new Tool("+currentTool.param+")"
     //tool.js
     fs.readFile("template/tool-template.js", 'utf8', function(err, data) {
         if (err) throw err;
