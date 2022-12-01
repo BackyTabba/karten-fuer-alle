@@ -164,12 +164,3 @@ app.post("/",async(req,res)=>{
    res.redirect("/app/html")
     
     })
-	
-	
-	
-process.on('SIGTERM', function () {
-    server.close(function () {
-      process.exit(0);
-    });
-})
-

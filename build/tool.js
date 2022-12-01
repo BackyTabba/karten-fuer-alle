@@ -2,6 +2,26 @@
 /**
  * Schreibt Inhalte in die Variable parametercontent aus der Inputdatei (Speicherort definiert in der Variable "filename")
  */
+ function initiateParametercontent(){
+    fs.readFile(filename, 'utf8', function(err, data) {
+        if (err) throw err;
+        //Findet Marker nach dem Schema //$Marker$
+        matches=[...data.matchAll(/\/\/\$(.*)\$/gm)]
+        cfg=matches[1][1]
+        data=data+"\r\n"
+        //Setzt die Länge des Inhalts des Markers
+        for(i=0;i<matches.length;i++){
+            if(i+1>=matches.length){
+                contentLength=data.length
+            }else{
+                contentLength=matches[i+1].index
+            }
+            //Sliced matches auf das Format {Markername:  Inhalt des Markers} und speichert es in parametercontent
+            //Hilfreich https://stackoverflow.com/questions/2241875/how-to-create-an-object-property-from-a-variable-value-in-javascript
+            parametercontent={...parametercontent,[matches[i][1]]:data.slice(matches[i].index+matches[i][0].length+2,contentLength)}
+        }
+      });
+}
 
 function Tool(param){
     this.name=param.ToolName;
@@ -13,6 +33,7 @@ function Tool(param){
     this.DB.content={};
     this.DB.history={};
     this.DB.DataDatadomainOperations={};
+    this.OutputHTML="";
     this.EtablishConnection= async function EtablishConnection(){
         var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
         const contentSchema = new mongoose.Schema({
@@ -136,3 +157,9 @@ function Schema(input){
     input = [...new Set(input)] //only unique values
     return input;
 }
+
+process.on('SIGTERM', function () {
+    server.close(function () {
+      process.exit(0);
+    });
+})

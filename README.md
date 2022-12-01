@@ -59,14 +59,21 @@
 - [x] Neues Tool einrichten mit DB verknüpfen und Ports variable (Name = Identifikation)
 - [x] Tool server_template.js zusammenstellen
 - [x] node packages und packages-json zusammenstellen
-- [ ] den buildprozess manuell testen (npm start und schauen)
-- [ ] dockerfile lokal builden und testen ( attachen und anschauen )
+- [x] den buildprozess manuell testen (npm start und schauen)
+- [x] dockerfile lokal builden und testen ( attachen und anschauen )
 - [ ] docker(-compose) testen (herausfinden wie man builded und zu dockerhub uploaded)
+Docker Befehle: 
+
+docker build -t currbuild .
+docker image tag currbuild leem01/karten-fuer-alle:NAME
+docker image push leem01/karten-fuer-alle
+
 - [ ] CreateDockerImage() bauen und lokal testen
 - [ ] Docker-Compose in image reinkopieren und lokal testen
 - [ ] mit manueller SSH-Verbindung CerateDockerImage() und Compose start auf Server testen
 - [ ] SSH-Verbindung mit Zertifikat aufbauen 
 - [ ] mit SSH-Verbindung CreateDockerImage() und Compose start auf Server testen
+
 
 - [ ] Zusammenkopieren von 
     - [x] Tool:server.js

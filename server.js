@@ -120,7 +120,8 @@ var ports=[];
 var startingport=3001;
 var portcount=1;
 ports.add=function(tool){
-    if(ports.length==portcount-1){ //ports volle länge, also erstes element löschen
+
+    if(ports.length==portcount){ //ports volle länge, also erstes element löschen
         del=ports.shift()
         console.log(del.tool.name+" is removed from Ports")
     }
@@ -128,10 +129,11 @@ ports.add=function(tool){
     return ports[ports.length]
     //push mounting tool
 }
-ports.getPort= function (Tool){
-    for(x in ports){
+ports.getPort= function (tool){
+    console.log(ports)
+    for(x of ports){
         if (x.tool.name==tool.name){
-            return x;
+            return x.port;
         }
     }
     return null;
@@ -416,9 +418,11 @@ app.post("/",async(req,res)=>{
     
     })
 app.get("/abba",(req,res)=>{ 
+    GenerateTool({},currentTool)
+    res.send(JSON.parse(JSON.stringify(currentTool)))
     //JsonFromString();
-    console.log(currentTool.getPopupString())
-    res.send(currentTool.getPopupString())
+    //console.log(currentTool.getPopupString())
+    //res.send(currentTool.getPopupString())
 })
 
 //DB-Routen
@@ -559,8 +563,9 @@ function Tool(param){
             });*/
     }
     this.CopyEssentials=function(){
+
         //func.js
-    fs.readFile("src\\html\\func.js", 'utf8', function(err, data) {
+    fs.readFile("src/html/func.js", 'utf8', function(err, data) {
         if (err) throw err;
                 write('./build/html/func.js', data,"Saved build/html/func.js!")             
                 /*fs.writeFile('/build\\html\\func.js', data, function (err) {
@@ -569,7 +574,7 @@ function Tool(param){
                     });*/
       });
       //ColorPicker.js
-      fs.readFile("src\\html\\ColorPicker.js", 'utf8', function(err, data) {
+      fs.readFile("src/html/ColorPicker.js", 'utf8', function(err, data) {
         if (err) throw err;                
                 fs.writeFile('./build/html/ColorPicker.js', data, function (err) {
                     if (err) throw err;
@@ -577,7 +582,7 @@ function Tool(param){
                     });
       });
       //style.css
-      fs.readFile("src\\html\\style.css", 'utf8', function(err, data) {
+      fs.readFile("src/html/style.css", 'utf8', function(err, data) {
         if (err) throw err;                
                 fs.writeFile('./build/html/style.css', data, function (err) {
                     if (err) throw err;
@@ -752,53 +757,65 @@ async function EtablishConnection(Tool){
 
 function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool-Server?
     //CreateFrontend(parameter) //...
-    CopyFiles(ENVvariables); //server.js, dockerfile, package.json
-    //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
-    imagename="leem_01/:"+tool.name.trim().replace(" ","-")
+    imagename=tool.name.trim().replace(" ","-")
     ports.add(tool);
     port=ports.getPort(tool);//next free space of Ports
+    ENVvariables={...ENVvariables,port:port}
+
+    CopyFiles(ENVvariables); //server.js, dockerfile, package.json
+    //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
+    console.log("Imagename in GenerateTool", imagename)
     CreateCompose(port,imagename,ENVvariables);
-    BindCompose();//bindCompose under Port (Start) ?
+
+    //BindCompose();//bindCompose under Port (Start) ?
 }
 
-function CopyFiles(ENVvariables){
-    envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
+function CopyFiles(envVariables){
+    //envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     //  mongoAdminPW: process.env.MONGO_INITDB_ROOT_PASSWORD${envvariables}
     var OutputEnvVariables="";
     for(x in envVariables){
-        OutputEnvVariables+=",\n  "+x+":process.env."+x.toUpperCase();
+        OutputEnvVariables+=",\n  "+x+":process.env.ENV_"+x.toUpperCase();
     }
-
-    //keys.js
-    fs.readFile("template\\keys-template.js", 'utf8', function(err, data) {
-        if (err) throw err;                
-        data= data.replace("${envvariables}",OutputEnvVariables)
-                fs.writeFile('build\\keys.js', data, function (err) {
+    //tool.js
+    fs.readFile("template/tool-template.js", 'utf8', function(err, data) {
+        if (err) throw err;
+                write('./build/tool.js', data,"Saved build/tool.js!")             
+                /*fs.writeFile('/build\\html\\func.js', data, function (err) {
                     if (err) throw err;
-                    console.log('Saved build\\keys.js!');
+                    console.log('Saved build\\html\\func.js!');
+                    });*/
+        });
+    //keys.js
+    fs.readFile("template/keys-template.js", 'utf8', function(err, data) {
+       // if (err) throw err;                
+        data= data.replace("${envvariables}",OutputEnvVariables)
+                fs.writeFile('build/keys.js', data, function (err) {
+                    if (err) throw err;
+                    console.log('Saved build/keys.js!');
                     });
       });
     //nichts zu ersetzen
-    fs.readFile("template\\server-template.js", 'utf8',(err, data)=>{
-        if (err) throw err;              
-                fs.writeFile('build\\server.js', data, function (err){
+    fs.readFile("template/server-template.js", 'utf8',(err, data)=>{
+        //if (err) throw err;              
+                fs.writeFile('build/server.js', data, function (err){
                     if (err) throw err;
-                    console.log('Saved build\\server.js!');
+                    console.log('Saved build/server.js!');
                     });
     });
-    fs.readFile("template\\Dockerfile-template", 'utf8',(err, data)=>{
-        if (err) throw err;              
-                fs.writeFile('build\\Dockerfile', data, function (err){
+    fs.readFile("template/Dockerfile-template", 'utf8',(err, data)=>{
+        //if (err) throw err;              
+                fs.writeFile('build/Dockerfile', data, function (err){
                     if (err) throw err;
-                    console.log('Saved build\\Dockerfile!');
+                    console.log('Saved build/Dockerfile!');
                     });
     });
 
-    fs.readFile("template\\package.json", 'utf8',(err, data)=>{
-        if (err) throw err;              
-                fs.writeFile('build\\package.json', data, function (err){
+    fs.readFile("template/package.json", 'utf8',(err, data)=>{
+        //if (err) throw err;              
+                fs.writeFile('build/package.json', data, function (err){
                     if (err) throw err;
-                    console.log('Saved build\\package.json!');
+                    console.log('Saved build/package.json!');
                     });
     });
 
@@ -807,17 +824,18 @@ function CopyFiles(ENVvariables){
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     imageName=imageName.replace(/ /g,"-")
+    console.log("Imagename in Compose", imageName)
     var newEnvVariables="";
     for(x in envVariables){
         newEnvVariables+="      - ENV_"+x.toUpperCase()+":"+envVariables[x]+"\n"
     }
-    fs.readFile("template\\docker-compose-template.yml", 'utf8', function(err, data) {
+    fs.readFile("template/docker-compose-template.yml", 'utf8', function(err, data) {
         if (err) throw err;
                 //console.log(data)
                 data= data.replace("${port}",port).replace("${imagename}",imageName).replace("${envVariables}",newEnvVariables)
-                fs.writeFile('build\\docker-compose.yml', data, function (err) {
+                fs.writeFile('image/docker-compose.yml', data, function (err) {
                     if (err) throw err;
-                    console.log('Saved build\\docker-compose.yml!');
+                    console.log('Saved image/docker-compose.yml!');
                     });
       });
 
