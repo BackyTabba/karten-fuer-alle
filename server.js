@@ -15,8 +15,24 @@ const { type, getPriority } = require('os');
 const { throws } = require('assert');
 const { json } = require('express');
 const fsExtra = require('fs-extra');
+var SSH = require('simple-ssh');
 
 //const mkdirp =require('mkdirp');
+
+
+//https://github.com/MCluck90/simple-ssh#readme
+//read env/cert
+fs.readFile("env/cert.key", 'utf8', function(err, data) {
+    if (err){console.log("no certificat found")};
+//open ssh key
+console.log(data)
+var ssh = new SSH({
+    host: '3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
+    user: 'ec2-user',
+    key : data
+});
+})
+
 
 var port=3000
 server.listen(port, () => {
@@ -213,7 +229,9 @@ app.get("/params",(req,res)=>{
 app.delete("/upload",(req,res)=>{
     console.log("incoming delete order",req.body)
 
+app.get("/testSSH",(req,res)=>{
 
+})
     // data = TempTool.DB.content.findByIdAndUpdate(
         //req.body._id,{ "object": req.body.content,"_id":req.body._id},
         //{upsert: true,new: true,returnDocument:'after'},
