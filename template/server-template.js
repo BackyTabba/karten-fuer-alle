@@ -10,15 +10,17 @@ const io = new Server(server);
 //var server = app.listen(3000, () => console.log("listening on port " + 3000 + "! :)"));
 var fs = require('fs')
 const keys = require("./keys");
-const { mongoAdmin, mongoAdminPW, port, params } = require('./keys');
+const { mongoAdmin, mongoAdminPW, params } = require('./keys');
 const { type, getPriority } = require('os');
 const { throws } = require('assert');
 const { json } = require('express');
 const fsExtra = require('fs-extra');
-server.listen(port, () => {
-    console.log("listening on port " + port + "! :)");
+server.listen(3000, () => {
+    console.log("listening on port " + 3000 + "! :)");
   });
   currentTool=new Tool(params)
+
+  sleep(3000);
     //socket.io
     io.on('connection', (socket) => {
         console.log('a user connected');
@@ -30,7 +32,11 @@ server.listen(port, () => {
         console.log(`connect_error due to ${err.message}`);
       });
 
-
+      function sleep(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      }
 //main().catch(err => console.log(err));
 
 
@@ -46,6 +52,7 @@ app.get("/index",(req,res,next)=>{
     res.sendFile(__dirname+"/html/index.html")
     })
 app.get("/",(req,res,next)=>{
+    console.log("get")
     res.redirect("/index");
     })
 app.get("/test",(req,res,next)=>{
@@ -197,7 +204,10 @@ app.post("/",async(req,res)=>{
         this.DB.DataDatadomainOperations={};
         this.DB.DataInput={};
         this.EtablishConnection= async function EtablishConnection(){
-            var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
+            var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{
+            if(err)console.log(err)    
+            console.log("Mongoose Connection to "+this.name+" successful")
+            })
             const contentSchema = new mongoose.Schema({
                 _id: Number,
                 "object": String

@@ -2,14 +2,14 @@ version: "3"
 services:
   server:
     image: leem_01/karten-fuer-alle:${imagename}
-    build: .
     hostname: server
     mem_limit: 128m
     ports:
       - "${port}:3000"
+    links:
+      - "mongo"
     environment:
       - MONGO_HOST=mongo
-      - MONGO_PORT=27017
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
 ${envVariables}
