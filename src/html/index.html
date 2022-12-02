@@ -4,8 +4,12 @@
   <fieldset>
     <legend>Choose your tool's features:</legend>
     <div>
-      <input type="checkbox" id="start" name="start" value="start" checked readonly>
-      <label for="start">start</label>
+      <label for="schema">Name (ohne Leerzeichen, bei Bedarf - benutzen)</label>
+      <input type="text" id="ToolName" name="ToolName" required value="Template">
+    </div>
+    <div>
+      <input type="checkbox" id="start" name="content[start]" value="true" checked readonly>
+      <label for="start" hidden="false">start</label>
     </div>
     <!-- <select name="map" id="map">
       <option value="osm">osm</option>
@@ -25,35 +29,89 @@
 
     </div>
     <div>
-      <input type="checkbox" id="Polygon" name="actions[]=Polygon" value="Polygon"checked>
+      <input type="checkbox" id="Polygon" name="content[Polygon]" value="true" checked>
       <label for="Polygon">Polygon</label>
-      <input type="checkbox" id="Marker" name="actions[]=Marker" value="Marker" checked>
+      <input type="checkbox" id="Marker" name="content[Marker]" value="true" checked>
       <label for="Marker">Marker</label>
-      <input type="checkbox" id="Rectangle" name="actions[]=Rectangle" value="Rectangle" checked>
+      <input type="checkbox" id="Rectangle" name="content[Rectangle]" value="true" checked>
       <label for="Rectangle">Rectangle</label>
-      <input type="checkbox" id="Circle" name="actions[]=Circle" value="Circle" checked>
+      <input type="checkbox" id="Circle" name="content[Circle]" value="true" checked>
       <label for="Circle">Circle</label>
-      <input type="checkbox" id="Polyline" name="actions[]=Polyline" value="Polyline" checked>
+      <input type="checkbox" id="Polyline" name="content[Polyline]" value="true" checked>
       <label for="Polyline">Polyline</label>
     </div>
 
-      <input type="checkbox" id="end" name="end" value="end" checked readonly>
+      <input type="checkbox" id="end" name="content[end]" value="true" checked readonly>
       <label for="end">end</label>
     </div>
     <div>
-      <input type="checkbox" id="open" name="open" value="open" checked readonly>
+      <input type="checkbox" id="open" name="content[open]" value="true" checked readonly>
       <label for="open">open</label>
-      <input type="checkbox" id="save" name="save" value="save" checked readonly>
+      <input type="checkbox" id="save" name="content[save]" value="true" checked readonly>
       <label for="save">save</label>
     </div>
   </div>
-  <input type="checkbox" id="end2" name="end2" value="end2" checked readonly>
+  <input type="checkbox" id="end2" name="content[end2]" value="true" checked readonly>
   <label for="end2">end2</label>
-</div>
+  </div>
     <div>
+      <label for="schema">Schema (mit Semikolons trennen)</label>
+      <input type="text" id="schema" name="schema" value="Asave" required pattern="^((\w)+;)*(\w)+[^;]$" title="aSave;bSave;cSave oder Übernahme003;Abbruch110">
+    </div>
     <div>
+      <p><b>Karten </b></p>OpenStreetMap
+      <input type="checkbox" id="OpenStreetMap" name="content[OpenStreetMap]" value="true" checked>
+      <label for="OpenStreetMap">OpenStreetMap</label>
+      <input type="checkbox" id="CartoDB.Positron" name="content[CartoDb.Positron]" value="true" checked>
+      <label for="CartoDB.Positron">CartoDB Positron</label>
+      <input type="checkbox" id="CartoDB.DarkMatter" name="content[CartoDB.DarkMatter]" value="true" checked>
+      <label for="CartoDB.DarkMatter">CartoDB DarkMatter</label>
+      <input type="checkbox" id="CartoDB.Voyager" name="content[CartoDB.Voyager]" value="true" checked>
+      <label for="CartoDB.Voyager">CartoDB Voyager</label>
+      <input type="checkbox" id="OpenStreetMap.Mapnik" name="content[OpenStreetMap.Mapnik]" value="true" checked>
+      <label for="OpenStreetMap.Mapnik">OpenStreetMap Mapnik</label>
+      <input type="checkbox" id="OpenTopoMap" name="content[OpenTopoMap]" value="true" checked>
+      <label for="OpenTopoMap">OpenTopoMap</label>
+      <input type="checkbox" id="Stadia.AlidadeSmoothDark" name="content[Stadia.AlidadeSmoothDark]" value="true" checked>
+      <label for="Stadia.AlidadeSmoothDark">Stadia AlidadeSmoothDark</label>
+      <input type="checkbox" id="Stadia.OSMBright" name="content[Stadia.OSMBright]" value="true" checked>
+      <label for="Stadia.OSMBright">Stadia OSMBright</label>
+      <input type="checkbox" id="Esri.WorldImagery" name="content[Esri.WorldImagery]" value="true" checked>
+      <label for="Stadia.OSMBright">Stadia OSMBright</label>   
+    </div>
+    <p><b>Datentypen</b></p>
+    <textarea id="DataTypeInput" name="DataTypeInput" rows="4" cols="50" required pattern="^((.*:(Number|String|Boolean),\n)*(.*:(Number|String|Boolean)))$" title ="Attribute1:String,
+    AttributBeispiel:Number,
+    Attribute1245:Boolean">Attribute1:String,
+AttributBeispiel:Number,
+Attribute1245:Boolean </textarea>
+    <p><b>Syntax</b>  (Attributsnamen sind beliebig, aber keine Leerzeichen; Datentypen String (SomeText), Number (123) oder Boolean (true oder false))
+      <br> Attribute1:String, <br>
+      AttributBeispiel:Number, <br>
+      Attribute1245:Boolean <br>
+       </p>
+
+      <div>
       <button type="submit">Submit</button>
     </div>
   </fieldset>
+ 
+
+  <script>
+        /*
+    <input type="checkbox" id="OpenStreetMap" name="content[maps][OpenStreetMap]" value="true" checked>
+      <label for="OpenStreetMap">CartoDB Positron</label>
+    
+
+    Schema ^((\w)+;)*(\w)+[^;]$
+    Datentyp ^((.*:(Number|String|Boolean),\n)*(.*:(Number|String|Boolean)))$ textarea unterstützt pattern leider nicht :(
+    String ^.*$
+    Number ^\d*(.|,)?\d*$
+    Boolean | Bool ^(True|true|False|false)$
+
+    https://stackoverflow.com/questions/14589807/how-to-display-hints-in-html-form-fields
+    */</script>
+
+      
 </form>
 <html>

@@ -1,12 +1,13 @@
 version: "3"
 services:
   server:
-    image: leem_01/karten-fuer-alle
+    #image: leem_01/karten-fuer-alle
     build: .
     hostname: server
     mem_limit: 128m
     ports:
       - "3000:3000"
+    #//https://nickjanetakis.com/blog/docker-tip-30-running-docker-compose-from-a-different-directory
     # build:
     #   context: .
     #   dockerfile: Dockerfile.dev
