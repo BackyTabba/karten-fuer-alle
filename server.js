@@ -125,7 +125,7 @@ ports.add=function(tool){
         del=ports.shift()
         console.log(del.tool.name+" is removed from Ports")
     }
-    ports.push({"tool":tool,"port":startingport+ports.length})
+    ports.push({"tool":tool,"port":startingport+ports.length*10})
     return ports[ports.length]
     //push mounting tool
 }
@@ -760,7 +760,7 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     imagename=tool.name.trim().replace(" ","-")
     ports.add(tool);
     port=ports.getPort(tool);//next free space of Ports
-    ENVvariables={...ENVvariables,port:port}
+    ENVvariables={...ENVvariables}
 
     CopyFiles(ENVvariables); //server.js, dockerfile, package.json
     //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
@@ -777,7 +777,7 @@ function CopyFiles(envVariables){
     for(x in envVariables){
         OutputEnvVariables+=",\n  "+x+":process.env.ENV_"+x.toUpperCase();
     }
-    OutputEnvVariables+=",\n  currentTool:new Tool("+currentTool.param+")"
+    OutputEnvVariables+=",\n  params:"+JSON.stringify(currentTool.param)
     //tool.js
     fs.readFile("template/tool-template.js", 'utf8', function(err, data) {
         if (err) throw err;
@@ -822,13 +822,14 @@ function CopyFiles(envVariables){
 
 }
 
-function CreateCompose(port,imageName,envVariables){
+function CreateCompose(port,mongoport,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
+    console.log(imageName,typeof(imageName))
     imageName=imageName.replace(/ /g,"-")
     console.log("Imagename in Compose", imageName)
     var newEnvVariables="";
     for(x in envVariables){
-        newEnvVariables+="      - ENV_"+x.toUpperCase()+":"+envVariables[x]+"\n"
+        newEnvVariables+="      - ENV_"+x.toUpperCase()+"="+envVariables[x]+"\n"
     }
     fs.readFile("template/docker-compose-template.yml", 'utf8', function(err, data) {
         if (err) throw err;
