@@ -419,6 +419,8 @@ app.post("/",async(req,res)=>{
     })
 app.get("/abba",(req,res)=>{ 
     GenerateTool({},currentTool)
+    sleep(3000)
+    CreateImage()
     res.send(JSON.parse(JSON.stringify(currentTool)))
     //JsonFromString();
     //console.log(currentTool.getPopupString())
@@ -766,7 +768,7 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
     console.log("Imagename in GenerateTool", imagename)
     CreateCompose(port,imagename,ENVvariables);
-
+    CreateImage();
     //BindCompose();//bindCompose under Port (Start) ?
 }
 
@@ -821,7 +823,10 @@ function CopyFiles(envVariables){
     });
 
 }
+function CreateImage(){
 
+    
+}
 function CreateCompose(port,mongoport,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     console.log(imageName,typeof(imageName))
