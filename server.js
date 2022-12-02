@@ -15,23 +15,23 @@ const { type, getPriority } = require('os');
 const { throws } = require('assert');
 const { json } = require('express');
 const fsExtra = require('fs-extra');
-var SSH = require('simple-ssh');
+const SSH = require('simple-ssh');
 
 //const mkdirp =require('mkdirp');
 
 
 //https://github.com/MCluck90/simple-ssh#readme
 //read env/cert
-fs.readFile("env/cert.key", 'utf8', function(err, data) {
+SSHkey="";
+fs.readFile("env/KartenFuerAlle.ppk", 'utf8', function(err, data) {
     if (err){console.log("no certificat found")};
 //open ssh key
 console.log(data)
-var ssh = new SSH({
-    host: '3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
-    user: 'ec2-user',
-    key : data
-});
+SSHkey=data;
+
 })
+
+
 
 
 var port=3000
@@ -438,7 +438,7 @@ app.post("/",async(req,res)=>{
 app.get("/abba",(req,res)=>{ 
     GenerateTool({},currentTool)
     sleep(3000)
-    CreateImage()
+    CreateImage(SSHkey)
     res.send(JSON.parse(JSON.stringify(currentTool)))
     //JsonFromString();
     //console.log(currentTool.getPopupString())
@@ -841,11 +841,44 @@ function CopyFiles(envVariables){
     });
 
 }
-function CreateImage(){
-
+function CreateImage(data){
+    var ssh2= new SSH({
+        host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
+        user: "ec2-user",//'ec2-user',
+        key: data
+    });
     
+    ssh2.exec('ls -al /var/app/current/', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    })/*.exec('cd /var', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec('pwd', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec('cd /var', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    })*/.start();
 }
-function CreateCompose(port,mongoport,imageName,envVariables){
+function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     console.log(imageName,typeof(imageName))
     imageName=imageName.replace(/ /g,"-")
