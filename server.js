@@ -616,18 +616,19 @@ function Tool(param){
         this.CreateEnvVars();
     }
     this.EtablishConnection= async function EtablishConnection(){
-        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log()})
-        
-        conn.on("connected", function(){
-            console.log("EtablishConnection: Mongoose Connection to "+this.name+" successful");
+        let name=this.name;
+        console.log("mongodb://"+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/,{dbName: '+this.name+'}')
+        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{console.log("EtablishConnection mongoose.createConnection: "+err)})
+        conn.on("connected", function(name){
+            console.log("EtablishConnection: Mongoose Connection to "+name+" successful");
         });
         
-        conn.on("error", function(err){
-            console.log("EtablishConnection: Mongoose Connection to "+this.name+" error: " + err);
+        conn.on("error", function(err,name){
+            console.log("EtablishConnection: Mongoose Connection to "+name+" error: " + err);
         });
         
-        conn.on("disconnected", function(){
-            console.log("EtablishConnection: Mongoose Connection to "+this.name+" disconnected ");
+        conn.on("disconnected", function(name){
+            console.log("EtablishConnection: Mongoose Connection to "+name+" disconnected ");
         });
         
         //await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: Tool.name}).then(()=>{console.log("Mongoose Connection to "+Tool.name+" successful")});
