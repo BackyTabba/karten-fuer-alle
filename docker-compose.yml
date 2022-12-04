@@ -7,6 +7,8 @@ services:
     mem_limit: 128m
     ports:
       - "3000:3000"
+    links:
+      - mongo
     #//https://nickjanetakis.com/blog/docker-tip-30-running-docker-compose-from-a-different-directory
     # build:
     #   context: .
@@ -32,8 +34,6 @@ services:
     hostname: mongo
     restart: always
     mem_limit: 128m
-    ports:
-      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
