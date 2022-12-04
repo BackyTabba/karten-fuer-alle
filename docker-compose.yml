@@ -8,6 +8,8 @@ services:
       - "3000:3000"
     links:
       - mongo
+    networks:
+      - default
     #//https://nickjanetakis.com/blog/docker-tip-30-running-docker-compose-from-a-different-directory
     # build:
     #   context: .
@@ -34,6 +36,8 @@ services:
     container_name: mongo
     ports:
       - '27017:27017'
+    networks:
+      - default
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -56,3 +60,5 @@ services:
       - mongo
     depends_on:
       - mongo
+    networks:
+      - default
