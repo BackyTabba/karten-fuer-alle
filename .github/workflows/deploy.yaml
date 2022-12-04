@@ -21,7 +21,6 @@
               aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
               aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
 
-			        use_existing_version_if_available: true
               application_name: karten-fuer-alle
               environment_name: kartenfueralle-env
               existing_bucket_name: elasticbeanstalk-eu-central-1-199192310536
@@ -29,3 +28,4 @@
 
               version_label: ${{ github.sha }}
               deployment_package: deploy.zip
+              use_existing_version_if_available: true
