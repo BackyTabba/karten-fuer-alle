@@ -616,7 +616,20 @@ function Tool(param){
         this.CreateEnvVars();
     }
     this.EtablishConnection= async function EtablishConnection(){
-        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log("Mongoose Connection to "+this.name+" successful")})
+        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},()=>{console.log()})
+        
+        conn.on("connected", function(){
+            console.log("EtablishConnection: Mongoose Connection to "+this.name+" successful");
+        });
+        
+        conn.on("error", function(err){
+            console.log("EtablishConnection: Mongoose Connection to "+this.name+" error: " + err);
+        });
+        
+        conn.on("disconnected", function(){
+            console.log("EtablishConnection: Mongoose Connection to "+this.name+" disconnected ");
+        });
+        
         //await mongoose.connect('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/', {dbName: Tool.name}).then(()=>{console.log("Mongoose Connection to "+Tool.name+" successful")});
         
         const contentSchema = new mongoose.Schema({
