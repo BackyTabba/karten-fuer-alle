@@ -23,6 +23,7 @@
     "fs-extra": "^10.1.0",
     "http": "0.0.1-security",
     "https": "^1.0.0",
+    "jquery": "^3.6.1",
     "leaflet": "^1.9.2",
     "leaflet-draw": "^1.0.4",
     "leaflet-draw-toolbar": "^0.3.0-alpha.1",

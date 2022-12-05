@@ -41,7 +41,7 @@ server.listen(3000, () => {
 
 
 app.use('/node_modules', express.static(__dirname+"/node_modules/"));
-
+app.use('/req',(express.static(__dirname+"/req/")))
 app.use("/",express.static(__dirname+"/html/"));
 app.use("/leaflet-providers",express.static(__dirname+"/node_modules/leaflet-providers/leaflet-providers.js"))
 app.use("/app", express.static(__dirname+"/build/"))

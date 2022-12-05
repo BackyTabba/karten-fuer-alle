@@ -31,9 +31,6 @@ SSHkey=data;
 
 })
 
-
-
-
 var port=3000
 server.listen(port, () => {
     console.log("listening on port " + port + "! :)");
@@ -103,8 +100,9 @@ fs.rm("\\build", { recursive: true, force: true },()=>{
 fsExtra.emptyDir("build").then(()=>{
 fsExtra.ensureDir("build/html")
 .then(() => {
-  console.log('success!')
   fsExtra.emptyDir("build/html");
+}).then(()=>{
+    fsExtra.ensureDir("build/req");
 })
 .catch(err => {
   console.error(err)
@@ -207,6 +205,7 @@ initiateParametercontent();
 
 
 app.use('/node_modules', express.static(__dirname+"/node_modules/"));
+app.use('/req',(express.static(__dirname+"/src/req/")))
 
 app.use("/",express.static(__dirname+"/src/html/"));
 app.use("/leaflet-providers",express.static(__dirname+"/node_modules/leaflet-providers/leaflet-providers.js"))
@@ -591,7 +590,13 @@ function Tool(param){
             });*/
     }
     this.CopyEssentials=function(){
-
+        fsExtra.copy("src/req", "build/req", function (err) {
+            if (err){
+            console.log('An error occured while copying the folder.')
+            return console.error(err)
+            
+            console.log('Copy completed!')
+        } });
         //func.js
     fs.readFile("src/html/func.js", 'utf8', function(err, data) {
         if (err) throw err;

@@ -20,6 +20,8 @@ Object.assign(basemaps,{"Stadia OSMBright": L.tileLayer.provider("Stadia.OSMBrig
 //$Esri.WorldImagery$
 Object.assign(basemaps,{"Esri World Imagery":L.tileLayer.provider('Esri.WorldImagery')})
 //$start$
+
+
 <html>
 <head>
     <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14=" crossorigin=""> -->
@@ -29,13 +31,13 @@ Object.assign(basemaps,{"Esri World Imagery":L.tileLayer.provider('Esri.WorldIma
 	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet/dist/leaflet.css" />
 	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
 	<link rel="stylesheet" type="text/css" href="/node_modules/leaflet-toolbar/dist/leaflet.toolbar.css" />
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"/>
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"/>	
+    <link rel="stylesheet" href="/req/bootstrap3_1_1.theme.min.css"/>
+	<link rel="stylesheet" href="/req/bootstrap3_1_1.min.css"/>
+	<link rel="stylesheet" href="/req/bootstrap4_2_0_font_awesome.css"/>    
     <link rel="stylesheet" href="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.css"/>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="/req/jquery1_11_1.min.js"></script>
+	<script src="/req/jquery3_4_1.min.js"></script>
+	<script src="/req/bootstrap3_1_1.min.js"></script>
 	<script src="/node_modules/leaflet/dist/leaflet-src.js"></script>
 	<script src="/node_modules/leaflet-toolbar/dist/leaflet.toolbar-src.js"></script>
 	<script src="/node_modules/leaflet-draw/dist/leaflet.draw-src.js"></script>
