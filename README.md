@@ -63,15 +63,14 @@
 - [x] dockerfile lokal builden und testen ( attachen und anschauen )
 - [ ] docker(-compose) testen (herausfinden wie man builded und zu dockerhub uploaded)
 Docker Befehle: 
-
-docker build -t currbuild .
-docker image tag currbuild leem01/karten-fuer-alle:NAME
+docker login
+docker build -t leem01/karten-fuer-alle:Template /var/app/current/build/
 docker image push leem01/karten-fuer-alle
 
-- [ ] CreateDockerImage() bauen und lokal testen
-- [ ] Docker-Compose in image reinkopieren und lokal testen
+- [x] CreateDockerImage() bauen und lokal testen
+- [x] Docker-Compose in image reinkopieren und lokal testen
 - [ ] mit manueller SSH-Verbindung CerateDockerImage() und Compose start auf Server testen
-- [ ] SSH-Verbindung mit Zertifikat aufbauen 
+- [x] SSH-Verbindung mit Zertifikat aufbauen 
 - [ ] mit SSH-Verbindung CreateDockerImage() und Compose start auf Server testen
 
 
@@ -80,7 +79,7 @@ docker image push leem01/karten-fuer-alle
     - [x] Tool:index.html (=output.html)
     - [x] Tool:node package.json
     - [ ] ~~Tool:node json.lock~~
-    - [ ] docker-compose nur(and only) in image nötig?
+    - [x] docker-compose nur(and only) in image nötig?
 
 - [x] Check testdata
 - [ ] ~~Advanced geospatial tool~~

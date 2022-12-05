@@ -16,6 +16,8 @@ services:
     #   dockerfile: Dockerfile.dev
     volumes:
       - ../../env:/app/env
+      - ./build:/app/build
+      - ./image:/app/image
     #   - /app/node_modules
     #   - .:/app
 

@@ -438,7 +438,8 @@ app.post("/",async(req,res)=>{
     //res.send(currentTool.createOutputHTML())
     //res.sendFile(__dirname+"/build/html/index.html")
    // console.log("sendfile /build/html/index.html")
-   res.redirect("/app/html")
+   GenerateTool(ENVvariables,tool)
+   res.redirect(req.hostname+":3001")
     
     })
 app.get("/abba",(req,res)=>{ 
@@ -814,7 +815,8 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     //imagename=CreateDockerImage() //returns name of DockerImage, projekt Github? Funktion soll image Builden und auf Dockerhub uploaden
     console.log("Imagename in GenerateTool", imagename)
     CreateCompose(port,imagename,ENVvariables);
-    CreateImage();
+    sleep(5000)
+    CreateImage(SSHkey,tool);
     //BindCompose();//bindCompose under Port (Start) ?
 }
 
@@ -869,42 +871,58 @@ function CopyFiles(envVariables){
     });
 
 }
-function CreateImage(data){
+function CreateImage(data,tool){
     var ssh2= new SSH({
         host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
         user: "ec2-user",//'ec2-user',
         key: data
     });
+
+    buildname=tool.name.trim().replace(/ /g,"-")
     
-    ssh2.exec('ls -al /var/app/current/', {
+    ssh2.exec('sudo su', {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })/*.exec('cd /var', {
+    }).exec('docker login', {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('pwd', {
+    }).exec('docker build -t leem01/karten-fuer-alle:'+buildname+' /var/app/current/build/', {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('cd /var', {
+    }).exec('docker image push leem01/karten-fuer-alle:'+buildname, {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })*/.start();
+    }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' up", {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).start();
 }
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
