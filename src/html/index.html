@@ -1,5 +1,5 @@
 <html>
-<a href=http://localhost:3000/overview>overview</a>
+<a hidden href=http://localhost:3000/overview>overview</a>
 <form action="/" method="POST" id="take">
   <fieldset>
     <legend>Choose your tool's features:</legend>
@@ -8,7 +8,7 @@
       <input type="text" id="ToolName" name="ToolName" required value="Template">
     </div>
     <div>
-      <input type="checkbox" id="start" name="content[start]" value="true" checked readonly>
+      <input type="checkbox" id="start" name="content[start]" value="true" checked readonly hidden>
       <label for="start" hidden="false">start</label>
     </div>
     <!-- <select name="map" id="map">
@@ -41,8 +41,8 @@
       <label for="Polyline">Polyline</label>
     </div>
 
-      <input type="checkbox" id="end" name="content[end]" value="true" checked readonly>
-      <label for="end">end</label>
+      <input type="checkbox" id="end" name="content[end]" value="true" checked readonly hidden>
+      <label for="end" hidden>end</label>
     </div>
     <div>
       <input type="checkbox" id="open" name="content[open]" value="true" checked readonly>
@@ -50,10 +50,6 @@
       <input type="checkbox" id="save" name="content[save]" value="true" checked readonly>
       <label for="save">save</label>
     </div>
-  </div>
-  <input type="checkbox" id="end2" name="content[end2]" value="true" checked readonly>
-  <label for="end2">end2</label>
-  </div>
     <div>
       <label for="schema">Schema (mit Semikolons trennen)</label>
       <input type="text" id="schema" name="schema" value="Asave" required pattern="^((\w)+;)*(\w)+[^;]$" title="aSave;bSave;cSave oder Übernahme003;Abbruch110">
@@ -114,4 +110,4 @@ Attribute1245:Boolean </textarea>
 
       
 </form>
-<html>
+</html>

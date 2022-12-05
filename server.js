@@ -583,6 +583,7 @@ function Tool(param){
         if(this.OutputHTML==""){
             this.createOutputHTML()
         }
+       //console.log(this.OutputHTML)
         write('./build/html/index.html',this.OutputHTML,"Saved build/index.html");
         /*fs.writeFile('/build\\html\\index.html',this.OutputHTML , function (err) {
             if (err) throw err;
