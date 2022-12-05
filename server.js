@@ -24,9 +24,9 @@ const SSH = require('simple-ssh');
 //read env/cert
 SSHkey="";
 fs.readFile("env/KartenFuerAlle.ppk", 'utf8', function(err, data) {
-    if (err){console.log("no certificat found")};
+    if (err){console.log("no certificate found")};
 //open ssh key
-console.log(data)
+console.log(data,err)
 SSHkey=data;
 
 })
@@ -70,7 +70,7 @@ toolHistory.aggregate(
         console.log(err) 
     }else{
     console.log(res); // [ { maxCountNumber: 2 } ]
-    if(res[0].maxCountNumber==undefined) return;
+    if(res.length==0) return;
     countNumber=res[0].maxCountNumber
     console.log("countNumber",countNumber)
     toolHistory.find({countNumber:countNumber},null,(err,doc)=>{
