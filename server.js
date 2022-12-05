@@ -438,7 +438,7 @@ app.post("/",async(req,res)=>{
     //res.send(currentTool.createOutputHTML())
     //res.sendFile(__dirname+"/build/html/index.html")
    // console.log("sendfile /build/html/index.html")
-   GenerateTool({},tool)
+   GenerateTool({},currentTool)
    res.redirect(req.hostname+":3001")
     
     })
