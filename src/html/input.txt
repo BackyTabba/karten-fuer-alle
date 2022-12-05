@@ -59,21 +59,37 @@ Object.assign(basemaps,{"Esri World Imagery":L.tileLayer.provider('Esri.WorldIma
 	ToolbarActions=[]
 	basemaps={}
 
+
 //$Rectangle$
+
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Rectangle]
+
 //$Circle$
+
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Circle]
+
 //$Polygon$
+
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Polygon]
+
 //$Polyline$
+
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Polyline]
+
 //$Marker$
+
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Marker]
+
 //$open$
+
 IOactions=[...IOactions,openGeooutput]
+
 //$save$
+
 IOactions=[...IOactions,saveGeooutput]
+
 //$end$
+
 var map = L.map('map',{layers:basemaps["Stadia AlidadeSmoothDark"]}).setView([41.7896,-87.5996], 15),
 	drawnItems = new L.FeatureGroup().addTo(map),
 	editActions = [
@@ -197,3 +213,4 @@ bar2 = new L.Toolbar2.Control({
 </script>
 </body> 
 </html>
+
