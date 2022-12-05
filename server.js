@@ -70,6 +70,7 @@ toolHistory.aggregate(
         console.log(err) 
     }else{
     console.log(res); // [ { maxCountNumber: 2 } ]
+    if(res[0].maxCountNumber==undefined) return;
     countNumber=res[0].maxCountNumber
     console.log("countNumber",countNumber)
     toolHistory.find({countNumber:countNumber},null,(err,doc)=>{
