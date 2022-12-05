@@ -15,7 +15,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile.dev
     volumes:
-      - /var/env:/env
+      - /../../env:/env
     #   - /app/node_modules
     #   - .:/app
 

@@ -66,15 +66,19 @@ toolHistory.aggregate(
     [{ $group: { _id: null, maxCountNumber: { $max: '$countNumber' }}}
   , { $project: { _id: 0, maxCountNumber: 1 }}]
   , function (err, res) {
-  if (err) return handleError(err);
-  console.log(res); // [ { maxCountNumber: 2 } ]
-  countNumber=res[0].maxCountNumber
-  console.log("countNumber",countNumber)
-  toolHistory.find({countNumber:countNumber},null,(err,doc)=>{
-    console.log(doc)
-    console.log(doc[0].tool[0])
-    currentTool=new Tool(doc[0].tool[0])
-})
+  if (err){
+        console.log(err) 
+    }else{
+    console.log(res); // [ { maxCountNumber: 2 } ]
+    countNumber=res[0].maxCountNumber
+    console.log("countNumber",countNumber)
+    toolHistory.find({countNumber:countNumber},null,(err,doc)=>{
+        console.log(doc)
+        console.log(doc[0].tool[0])
+        currentTool=new Tool(doc[0].tool[0])
+    }
+    )
+}
   
 });
 
