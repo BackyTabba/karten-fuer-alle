@@ -43,7 +43,9 @@ server.listen(port, () => {
 countNumber=0;
 
 
-var conntection= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: "Tool"},()=>{console.log("Mongoose Connection to Tools successful")})   
+//var conntection= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: "Tool"},()=>{console.log("Mongoose Connection to Tools successful")})   
+var conntection= mongoose.createConnection('mongodb://mongo:27017/',{dbName: "Tool"},()=>{console.log("Mongoose Connection to Tools successful")})   
+
 const toolHistorySchema = new mongoose.Schema({
     countNumber: Number,
     name: String,
@@ -618,7 +620,8 @@ function Tool(param){
     this.EtablishConnection= async function EtablishConnection(){
         let name=this.name;
         var trasmit="mongodb://"+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/,{dbName: '+this.name+'}'
-        var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{console.log("EtablishConnection mongoose.createConnection: "+err)})
+        //var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{console.log("EtablishConnection mongoose.createConnection: "+err)})
+        var conn= mongoose.createConnection('mongodb://mongo:27017/',{dbName: this.name},(err)=>{console.log("EtablishConnection mongoose.createConnection: "+err)})
         conn.on("connected", function(name,trasmit){
             console.log("EtablishConnection: Mongoose Connection to "+name+" successful",trasmit);
         });

@@ -204,7 +204,9 @@ app.post("/",async(req,res)=>{
         this.DB.DataDatadomainOperations={};
         this.DB.DataInput={};
         this.EtablishConnection= async function EtablishConnection(){
-            var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{
+            //var conn= mongoose.createConnection('mongodb://'+mongoAdmin+":"+mongoAdminPW+'@mongo:27017/',{dbName: this.name},(err)=>{
+            var conn= mongoose.createConnection('mongodb://@mongo:27017/',{dbName: this.name},(err)=>{
+
             if(err)console.log(err)    
             console.log("Mongoose Connection to "+this.name+" successful")
             })
