@@ -887,27 +887,7 @@ function CreateImage(data,tool){
     console.log("CreateImage: Buildname "+buildname)
     
 
-    ssh2.exec('echo "Node.js"', {
-        out: console.log.bind(console)
-    })
-    .exec('echo "is"', {
-        out: console.log.bind(console)
-    })
-    .exec('echo "awesome!"', {
-        out: console.log.bind(console)
-    }).exec('sudo su', {
-        in: function(stdout){
-            console.log(stdout)},
-        out: function(stdout) {
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        },
-        exit:function(stdout){
-
-            console.log(stdout)}
-    }).exec('echo StartDesBefehls', {
+    ssh2.exec('echo StartDesBefehls', {
         out: function(stdout) {
             console.log(stdout);
         },
