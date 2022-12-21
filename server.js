@@ -884,13 +884,30 @@ function CreateImage(data,tool){
 
     buildname=tool.name.trim().replace(/ /g,"-")
     console.log("CreateImage: Buildname "+buildname)
+    
+    
+    ssh2.exec('echo $PATH', {
+        in: function(stdout){
+            console.log("----------------------------wirsindjetztaufdemserver")
+            console.log(stdout)},
+        out: function(stdout) {
+            console.log(stdout);
+        }
+    }).start();
+
     ssh2.exec('sudo su', {
+        in: function(stdout){
+            console.log("++++++++++++++++++++++")
+            console.log(stdout)},
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
-        }
+        },
+        exit:function(stdout){
+            console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            console.log(stdout)}
     }).exec('echo Testestest', {
         out: function(stdout) {
             console.log(stdout);
