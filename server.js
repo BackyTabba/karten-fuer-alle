@@ -444,6 +444,7 @@ app.post("/",async(req,res)=>{
     
     })
 app.get("/abba",(req,res)=>{ 
+    console.log("SSHkey",SSHkey)
     console.log("Funktionseingang abba")
     GenerateTool({},currentTool)
     sleep(3000)
@@ -885,18 +886,6 @@ function CreateImage(data,tool){
     buildname=tool.name.trim().replace(/ /g,"-")
     console.log("CreateImage: Buildname "+buildname)
     
-    
-    ssh2.exec('pwd', {
-        in: function(stdout){
-            console.log("----------------------------wirsindjetztaufdemserver")
-            console.log(stdout)},
-        out: function(stdout) {
-            console.log("----------------------------wirsindjetztaufdemserver2")
-            console.log(stdout);
-        }
-    }).start([{sucess:()=>{console.log("sucess!!")},
-        fail:()=>{console.log("fail!!")}
-    }]);
 
     ssh2.exec('echo "Node.js"', {
         out: console.log.bind(console)
@@ -908,17 +897,15 @@ function CreateImage(data,tool){
         out: console.log.bind(console)
     }).exec('sudo su', {
         in: function(stdout){
-            console.log("++++++++++++++++++++++")
             console.log(stdout)},
         out: function(stdout) {
-            console.log("----------------------------wirsindjetztaufdemserver2.2")
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         },
         exit:function(stdout){
-            console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
             console.log(stdout)}
     }).exec('echo Testestest', {
         out: function(stdout) {
@@ -927,14 +914,21 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })/*.exec('docker login', {
+    }).exec('docker login', {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('docker build -t leem01/karten-fuer-alle:'+buildname+' /var/app/current/build/', {
+    }).exec('echo Testestest2', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    })/*.exec('docker build -t leem01/karten-fuer-alle:'+buildname+' /var/app/current/build/', {
         out: function(stdout) {
             console.log(stdout);
         },
