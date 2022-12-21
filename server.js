@@ -898,7 +898,15 @@ function CreateImage(data,tool){
         fail:()=>{console.log("fail!!")}
     }]);
 
-    ssh2.exec('sudo su', {
+    ssh2.exec('echo "Node.js"', {
+        out: console.log.bind(console)
+    })
+    .exec('echo "is"', {
+        out: console.log.bind(console)
+    })
+    .exec('echo "awesome!"', {
+        out: console.log.bind(console)
+    }).exec('sudo su', {
         in: function(stdout){
             console.log("++++++++++++++++++++++")
             console.log(stdout)},
@@ -957,6 +965,15 @@ function CreateImage(data,tool){
     })*/.start([{sucess:()=>{console.log("sucess2!!")},
         fail:()=>{console.log("fail2!!")}
     }]);
+    ssh2.on('error', function(err) {
+        console.log('Oops, something went wrong.');
+        console.log(err);
+    });
+    ssh2.on('ready', function(err) {
+        console.log('Oops, nothing went wrong.');
+        console.log(err);
+    });
+
 }
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
