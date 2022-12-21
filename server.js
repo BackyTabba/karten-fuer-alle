@@ -232,12 +232,13 @@ app.get("/params",(req,res)=>{
     console.log(parametercontent)
     res.redirect("/")
 })
-app.delete("/upload",(req,res)=>{
-    console.log("incoming delete order",req.body)
-
 app.get("/testSSH",(req,res)=>{
 
 })
+app.delete("/upload",(req,res)=>{
+    console.log("incoming delete order",req.body)
+
+
     // data = TempTool.DB.content.findByIdAndUpdate(
         //req.body._id,{ "object": req.body.content,"_id":req.body._id},
         //{upsert: true,new: true,returnDocument:'after'},
@@ -447,7 +448,7 @@ app.get("/abba",(req,res)=>{
     sleep(3000)
     CreateImage(SSHkey)
     res.send(JSON.parse(JSON.stringify(currentTool)))
-    //JsonFromString();
+    //ObjectFromString();
     //console.log(currentTool.getPopupString())
     //res.send(currentTool.getPopupString())
 })
@@ -535,7 +536,7 @@ function Tool(param){
     this.name=param.ToolName;
     this.param=param;
     this.schema=Schema(param.schema);
-    this.DataTypeInput=JsonFromString(param.DataTypeInput);
+    this.DataTypeInput=ObjectFromString(param.DataTypeInput);
    // console.log(this.schema)
     this.content=param.content;
     this.DB={}
@@ -733,7 +734,7 @@ function Tool(param){
        return outputstr+='</fieldset>\n</form>';
     }
     this.getPopupString=()=>{
-        outputstr='<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>\\n        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>\\n        <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>\\n        <form action="/popup" method="POST" id="take"> \\n     <fieldset>\\n'
+        outputstr='<script src="/req/jquery1_11_1.min.js"></script>\\n        <script src="/req/jquery3_4_1.min.js"></script>\\n        <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>\\n        <form action="/popup" method="POST" id="take"> \\n     <fieldset>\\n'
         console.log("getPopupString().getDataKeys(): ",this.getDataKeys())
         for (x of this.getDataKeys()){
             validationPattern="";
@@ -788,14 +789,14 @@ async function EtablishConnection(Tool){
     const contentSchema = new mongoose.Schema({
         _id: Number,
         object: String
-      });
-      const historySchema = new mongoose.Schema({
+      })
+    const historySchema = new mongoose.Schema({
         _id: Number,
         werte: String,
         value_pre: String,
      
         value_post: String
-    })
+    }) 
     const domainoperationsSchema = new mongoose.Schema({
         wert: String
     })
@@ -879,8 +880,15 @@ function CreateImage(data,tool){
     });
 
     buildname=tool.name.trim().replace(/ /g,"-")
-    
+    console.log("CreateImage: Buildname "+buildname)
     ssh2.exec('sudo su', {
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec('echo Testestest', {
         out: function(stdout) {
             console.log(stdout);
         },
@@ -946,7 +954,7 @@ function CreateCompose(port,imageName,envVariables){
 }
 //input='Attribute1:String,\r\nAttributBeispiel:Number,\r\nAttribute1245:Boolean'
 //json='{"Attribute1":"String","AttributBeispiel":"Number","Attribute1245":"Boolean"}'
-function JsonFromString(input){
+function ObjectFromString(input){
     /*input=`_id: Number,
     werte: String,
     value_pre: String,
@@ -977,9 +985,9 @@ function JsonFromString(input){
                 output[x]=Boolean
                 break;
         }
-        console.log("JsonFromString x:"+x,output[x])
+        console.log("ObjectFromString x:"+x,output[x])
     }
-    console.log("JsonFromString:"+output)
+    console.log("ObjectFromString:"+output)
     return output
 }
 function Schema(input){
