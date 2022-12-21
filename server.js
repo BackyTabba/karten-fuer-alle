@@ -886,17 +886,7 @@ function CreateImage(data,tool){
     buildname=tool.name.trim().replace(/ /g,"-")
     console.log("CreateImage: Buildname "+buildname)
     
-
     ssh2.exec('echo StartDesBefehls', {
-        out: function(stdout) {
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        }
-    }).exec('docker login', {
-        in: function(){
-            console.log("docker login")},
         out: function(stdout) {
             console.log(stdout);
         },
@@ -907,16 +897,6 @@ function CreateImage(data,tool){
         in: function(){
             console.log("docker build")},
         out: function(stdout) {
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        }
-    }).exec('docker image push leem01/karten-fuer-alle:'+buildname, {
-        in: function(){
-            console.log("docker push")},
-        out: function(stdout) {
-            console.log("docker push out")
             console.log(stdout);
         },
         err: function(stderr) {
@@ -936,9 +916,10 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })*/.start([{sucess:()=>{console.log("sucess2!!")},
+    })*/.start({sucess:()=>{console.log("sucess2!!")},
         fail:()=>{console.log("fail2!!")}
-    }]);
+    });
+
     ssh2.on('error', function(err) {
         console.log('Oops, something went wrong.');
         console.log(err);
@@ -947,6 +928,27 @@ function CreateImage(data,tool){
         console.log('Oops, nothing went wrong.');
         console.log(err);
     });
+    sleep(20000)
+    ssh2.exec('docker login', {
+        in: function(){
+            console.log("docker login")},
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec('docker image push leem01/karten-fuer-alle:'+buildname, {
+        in: function(){
+            console.log("docker push")},
+        out: function(stdout) {
+            console.log("docker push out")
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    })
 
 }
 function CreateCompose(port,imageName,envVariables){
