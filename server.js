@@ -448,7 +448,7 @@ app.get("/abba",(req,res)=>{
     console.log("Funktionseingang abba")
     GenerateTool({},currentTool)
     sleep(3000)
-    CreateImage(SSHkey,currentTool)
+    //CreateImage(SSHkey,currentTool)
     res.send(JSON.parse(JSON.stringify(currentTool)))
     //ObjectFromString();
     //console.log(currentTool.getPopupString())
