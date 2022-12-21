@@ -948,7 +948,7 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })
+    }).start();
 
 }
 function CreateCompose(port,imageName,envVariables){
