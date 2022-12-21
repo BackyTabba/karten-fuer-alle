@@ -444,6 +444,7 @@ app.post("/",async(req,res)=>{
     
     })
 app.get("/abba",(req,res)=>{ 
+    console.log("Funktionseingang abba")
     GenerateTool({},currentTool)
     sleep(3000)
     CreateImage(SSHkey,currentTool)
@@ -807,6 +808,7 @@ async function EtablishConnection(Tool){
 
 function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool-Server?
     //CreateFrontend(parameter) //...
+    console.log("Funktionseingang GenerateTool")
     imagename=tool.name.trim().replace(" ","-")
     ports.add(tool);
     port=ports.getPort(tool);//next free space of Ports
@@ -873,6 +875,7 @@ function CopyFiles(envVariables){
 
 }
 function CreateImage(data,tool){
+    console.log("Funktionseingang CreateImage")
     var ssh2= new SSH({
         host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
         user: "ec2-user",//'ec2-user',
