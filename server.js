@@ -446,7 +446,7 @@ app.post("/",async(req,res)=>{
 app.get("/abba",(req,res)=>{ 
     GenerateTool({},currentTool)
     sleep(3000)
-    CreateImage(SSHkey)
+    CreateImage(SSHkey,currentTool)
     res.send(JSON.parse(JSON.stringify(currentTool)))
     //ObjectFromString();
     //console.log(currentTool.getPopupString())
@@ -895,7 +895,7 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('docker login', {
+    })/*.exec('docker login', {
         out: function(stdout) {
             console.log(stdout);
         },
@@ -930,7 +930,7 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).start();
+    })*/.start();
 }
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
