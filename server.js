@@ -12,7 +12,7 @@ var fs = require('fs')
 const keys = require("./keys");
 const { mongoAdmin, mongoAdminPW } = require('./keys');
 const { type, getPriority } = require('os');
-const { throws } = require('assert');
+const { throws, fail } = require('assert');
 const { json } = require('express');
 const fsExtra = require('fs-extra');
 const SSH = require('simple-ssh');
@@ -886,20 +886,24 @@ function CreateImage(data,tool){
     console.log("CreateImage: Buildname "+buildname)
     
     
-    ssh2.exec('echo $PATH', {
+    ssh2.exec('pwd', {
         in: function(stdout){
             console.log("----------------------------wirsindjetztaufdemserver")
             console.log(stdout)},
         out: function(stdout) {
+            console.log("----------------------------wirsindjetztaufdemserver2")
             console.log(stdout);
         }
-    }).start();
+    }).start([{sucess:()=>{console.log("sucess!!")},
+        fail:()=>{console.log("fail!!")}
+    }]);
 
     ssh2.exec('sudo su', {
         in: function(stdout){
             console.log("++++++++++++++++++++++")
             console.log(stdout)},
         out: function(stdout) {
+            console.log("----------------------------wirsindjetztaufdemserver2.2")
             console.log(stdout);
         },
         err: function(stderr) {
@@ -950,7 +954,9 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })*/.start();
+    })*/.start([{sucess:()=>{console.log("sucess2!!")},
+        fail:()=>{console.log("fail2!!")}
+    }]);
 }
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
