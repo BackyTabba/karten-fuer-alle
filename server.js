@@ -1070,11 +1070,17 @@ function Testfunktion(){
     return abc
 }
 //https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time
-function sleep(ms) {
+function sleep(delayMs) {
+    let start = new Date().getTime();
+    while (new Date().getTime() < start + delayMs) {
+           // do something
+      }
+    };
+/*function sleep(ms) {
     return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
-  }
+  }*/
   async function write(path, data, endmessage){
     console.log("Should write at "+path)
     //console.log("content",data)
