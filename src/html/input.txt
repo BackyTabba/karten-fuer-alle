@@ -1,42 +1,24 @@
 //$OpenStreetMap$
-
 Object.assign(basemaps,{"OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
       })});
-      
 //$CartoDB.Positron$
-
 Object.assign(basemaps,{"CartoDB Positron": L.tileLayer.provider("CartoDB.Positron")})
-
 //$CartoDB.DarkMatter$
-
 Object.assign(basemaps,{"CartoDB DarkMatter": L.tileLayer.provider("CartoDB.DarkMatter")}) //black
-
 //$CartoDB.Voyager$
-
 Object.assign(basemaps,{"CartoDB Voyager": L.tileLayer.provider("CartoDB.Voyager")})
-
 //$OpenStreetMap.Mapnik$
-
 Object.assign(basemaps,{"OpenStreetMap Mapnik": L.tileLayer.provider("OpenStreetMap.Mapnik")})
-
 //$OpenTopoMap$
-
 Object.assign(basemaps,{"OpenTopoMap": L.tileLayer.provider("OpenTopoMap")})
-
 //$Stadia.AlidadeSmoothDark$
-
 Object.assign(basemaps,{"Stadia AlidadeSmoothDark": L.tileLayer.provider("Stadia.AlidadeSmoothDark")}) //dark
-
 //$Stadia.OSMBright$
-
 Object.assign(basemaps,{"Stadia OSMBright": L.tileLayer.provider("Stadia.OSMBright")})
-
 //$Esri.WorldImagery$
-
 Object.assign(basemaps,{"Esri World Imagery":L.tileLayer.provider('Esri.WorldImagery')})
-
 //$start$
 
 
