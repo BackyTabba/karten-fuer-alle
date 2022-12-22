@@ -936,7 +936,36 @@ function CreateImage(data,tool){
         console.log(err);
     });
     sleep(60000)
-    MountCompose(ssh2,tool)
+
+    sleep(20000)
+    console.log("20 sek , starting docker-compose")
+
+    ssh2.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
+        out: function(stdout) {
+            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache");
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' up", {
+        out: function(stdout) {
+            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' up")
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec("docker image prune -f", {
+        out: function(stdout) {
+            console.log("docker image prune -f")
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).start();
+   // MountCompose(ssh2,tool)
     //ssh2.start();
     /*.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
@@ -962,34 +991,7 @@ function MountCompose(ssh3,tool){
         key: data
     });*/
 
-    sleep(20000)
-    console.log("20 sek , starting docker-compose")
-
-    ssh3.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
-        out: function(stdout) {
-            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache");
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        }
-    }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' up", {
-        out: function(stdout) {
-            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' up")
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        }
-    }).exec("docker image prune -f", {
-        out: function(stdout) {
-            console.log("docker image prune -f")
-            console.log(stdout);
-        },
-        err: function(stderr) {
-            console.log(stderr); // this-does-not-exist: command not found
-        }
-    }).start();
+    
 
     
 }
