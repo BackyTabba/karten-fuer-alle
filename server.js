@@ -206,6 +206,7 @@ initiateParametercontent();
 
 app.use('/node_modules', express.static(__dirname+"/node_modules/"));
 app.use('/req',(express.static(__dirname+"/src/req/")))
+app.use('/fonts',(express.static(__dirname+"/src/fonts/")))
 
 app.use("/",express.static(__dirname+"/src/html/"));
 app.use("/leaflet-providers",express.static(__dirname+"/node_modules/leaflet-providers/leaflet-providers.js"))
@@ -601,6 +602,13 @@ function Tool(param){
             
             console.log('Copy completed!')
         } });
+        fsExtra.copy("src/fonts", "build/fonts", function (err) {
+            if (err){
+            console.log('An error occured while copying the folder.')
+            return console.error(err)
+            
+            console.log('Copy completed!')
+        } });
         //func.js
     fs.readFile("src/html/func.js", 'utf8', function(err, data) {
         if (err) throw err;
@@ -820,7 +828,7 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     console.log("Imagename in GenerateTool", imagename)
     CreateCompose(port,imagename,ENVvariables);
     sleep(5000)
-    CreateImage(SSHkey,tool);
+    //CreateImage(SSHkey,tool);
     //MountCompose(SSHkey,tool);//bindCompose under Port (Start) ?
 }
 

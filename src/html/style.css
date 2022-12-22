@@ -1,4 +1,15 @@
-
+.leaflet-toolbar-0 > li > .leaflet-toolbar-icon.leaflet-toolbar-icon{
+    position:relative
+}
+.fa-eyedropper.fa-eyedropper{
+top: 50%;
+position: absolute;
+left: 50%;
+transform: translate(-50%,-50%);
+}
+.fa-eyedropper::before{
+    font-size: 12px !important;
+}
 #map {
     position: absolute;
     top: 0;

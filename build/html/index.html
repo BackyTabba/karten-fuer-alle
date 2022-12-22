@@ -13,7 +13,13 @@
 	<link rel="stylesheet" href="/req/bootstrap3_1_1.min.css"/>
 	<link rel="stylesheet" href="/req/bootstrap4_2_0_font_awesome.css"/>    
     <link rel="stylesheet" href="/node_modules/leaflet-draw-toolbar/dist/leaflet.draw-toolbar.css"/>
-	<script src="/req/jquery1_11_1.min.js"></script>
+	<link rel="stylesheet" href="/fonts/fontawesome-webfont.woff"/>  
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.woff2"/>  
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.svg"/>  
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.eot"/>  
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.ttf"/>  
+    <link rel="stylesheet" href="/fonts/Fontawesome.otf"/>  
+    <script src="/req/jquery1_11_1.min.js"></script>
 	<script src="/req/jquery3_4_1.min.js"></script>
 	<script src="/req/bootstrap3_1_1.min.js"></script>
 	<script src="/node_modules/leaflet/dist/leaflet-src.js"></script>
@@ -53,33 +59,17 @@ ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Circle]
 
 ToolbarActions=[...ToolbarActions,L.Toolbar2.DrawAction.Polyline]
 
-
 Object.assign(basemaps,{"OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
       })});
-      
-
 Object.assign(basemaps,{"CartoDB DarkMatter": L.tileLayer.provider("CartoDB.DarkMatter")}) //black
-
-
 Object.assign(basemaps,{"CartoDB Voyager": L.tileLayer.provider("CartoDB.Voyager")})
-
-
 Object.assign(basemaps,{"OpenStreetMap Mapnik": L.tileLayer.provider("OpenStreetMap.Mapnik")})
-
-
 Object.assign(basemaps,{"OpenTopoMap": L.tileLayer.provider("OpenTopoMap")})
-
-
 Object.assign(basemaps,{"Stadia AlidadeSmoothDark": L.tileLayer.provider("Stadia.AlidadeSmoothDark")}) //dark
-
-
 Object.assign(basemaps,{"Stadia OSMBright": L.tileLayer.provider("Stadia.OSMBright")})
-
-
 Object.assign(basemaps,{"Esri World Imagery":L.tileLayer.provider('Esri.WorldImagery')})
-
 
 IOactions=[...IOactions,openGeooutput]
 

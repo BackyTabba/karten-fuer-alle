@@ -1,7 +1,7 @@
 version: "3"
 services:
   server:
-    image: leem01/karten-fuer-alle:Torsten
+    image: leem01/karten-fuer-alle:Datenerhebung-Tschad
     hostname: server
     mem_limit: 128m
     ports:
@@ -12,6 +12,7 @@ services:
       - MONGO_HOST=mongo
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
+
   mongo:
     image: mongo
     hostname: mongo
