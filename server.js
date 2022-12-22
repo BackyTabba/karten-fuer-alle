@@ -435,7 +435,7 @@ app.post("/",async(req,res)=>{
     /*res.send("<html> <form action=\"/output.html\">"
     +"<input type=\"submit\" value=\"Vorschau\" /></form>")*/
     //res.sendFile(__dirname+"/src/html/test.html")
-    await sleep(3000);
+    sleep(3000)
     //res.send(currentTool.createOutputHTML())
     //res.sendFile(__dirname+"/build/html/index.html")
    // console.log("sendfile /build/html/index.html")
@@ -955,19 +955,16 @@ function CreateImage(data,tool){
 }
 function MountCompose(data,tool){
     console.log("Funktionseingang MountImage")
-    var ssh2= new SSH({
+    var ssh3= new SSH({
         host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
         user: "ec2-user",//'ec2-user',
         key: data
     });
-    sleep(20000)
-    console.log("20 sek 1")
-    sleep(20000)
-    console.log("20 sek 2")
-    sleep(20000)
-    console.log("20 sek 3, starting docker-compose")
 
-    ssh2.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
+    sleep(20000)
+    console.log("20 sek , starting docker-compose")
+
+    ssh3.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
             console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache");
             console.log(stdout);
