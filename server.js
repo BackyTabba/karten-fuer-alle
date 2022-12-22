@@ -960,7 +960,14 @@ function MountCompose(data,tool){
         user: "ec2-user",//'ec2-user',
         key: data
     });
-    sleep(90000)
+    sleep(20000)
+    console.log("20 sek 1")
+    sleep(20000)
+    console.log("20 sek 2")
+    sleep(20000)
+    console.log("20 sek 3, starting docker-compose")
+
+
     ssh2.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
             console.log(stdout);
