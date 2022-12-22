@@ -938,9 +938,11 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('docker image push leem01/karten-fuer-alle:'+buildname, {
-        in: function(){
-            console.log("docker push")},
+    }).exec('docker image push --quiet leem01/karten-fuer-alle:'+buildname, {
+        in: function(stdout){
+            console.log("docker image push --quiet leem01/karten-fuer-alle:'+buildname")
+            console.log(stdout)
+        },
         out: function(stdout) {
             console.log("docker push out")
             console.log(stdout);
