@@ -821,7 +821,7 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     CreateCompose(port,imagename,ENVvariables);
     sleep(5000)
     CreateImage(SSHkey,tool);
-    //BindCompose();//bindCompose under Port (Start) ?
+    MountCompose(SSHkey,tool);//bindCompose under Port (Start) ?
 }
 
 function CopyFiles(envVariables){
@@ -902,7 +902,42 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })/*.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
+    }).exec('docker login', {
+        in: function(){
+            console.log("docker login")},
+        out: function(stdout) {
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec('docker image push --quiet leem01/karten-fuer-alle:'+buildname, {
+        in: function(stdout){
+            console.log("docker image push --quiet leem01/karten-fuer-alle:"+buildname)
+            console.log(stdout)
+        },
+        out: function(stdout) {
+            console.log("docker push out")
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).start({sucess:()=>{console.log("sucess2!!")},
+        fail:()=>{console.log("fail2!!")}
+    });
+
+    ssh2.on('error', function(err) {
+        console.log('Oops, something went wrong.');
+        console.log(err);
+    });
+    ssh2.on('ready', function(err) {
+        console.log('Oops, nothing went wrong.');
+        console.log(err);
+    });
+    //sleep(20000)
+    //ssh2.start();
+    /*.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
             console.log(stdout);
         },
@@ -916,43 +951,33 @@ function CreateImage(data,tool){
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    })*/.start({sucess:()=>{console.log("sucess2!!")},
-        fail:()=>{console.log("fail2!!")}
+    })*/
+}
+function MountCompose(data,tool){
+    console.log("Funktionseingang MountImage")
+    var ssh2= new SSH({
+        host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
+        user: "ec2-user",//'ec2-user',
+        key: data
     });
-
-    ssh2.on('error', function(err) {
-        console.log('Oops, something went wrong.');
-        console.log(err);
-    });
-    ssh2.on('ready', function(err) {
-        console.log('Oops, nothing went wrong.');
-        console.log(err);
-    });
-    sleep(20000)
-    ssh2.exec('docker login', {
-        in: function(){
-            console.log("docker login")},
+    sleep(40000)
+    ssh2.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
-    }).exec('docker image push --quiet leem01/karten-fuer-alle:'+buildname, {
-        in: function(stdout){
-            console.log("docker image push --quiet leem01/karten-fuer-alle:'+buildname")
-            console.log(stdout)
-        },
+    }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' up", {
         out: function(stdout) {
-            console.log("docker push out")
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
     }).start();
-
 }
+
 function CreateCompose(port,imageName,envVariables){
     //port=3030,imageName="saka ohne bura",envVariables={tiktok:"weißichnicht",blablacar:"keinFührerschein",sooderso:"freieWahl"}
     console.log(imageName,typeof(imageName))
