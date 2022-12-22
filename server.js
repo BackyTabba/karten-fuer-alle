@@ -935,7 +935,8 @@ function CreateImage(data,tool){
         console.log('Oops, nothing went wrong.');
         console.log(err);
     });
-    //sleep(20000)
+    sleep(60000)
+    MountCompose(SSHkey,tool)
     //ssh2.start();
     /*.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
