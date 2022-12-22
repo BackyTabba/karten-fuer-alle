@@ -967,9 +967,9 @@ function MountCompose(data,tool){
     sleep(20000)
     console.log("20 sek 3, starting docker-compose")
 
-
     ssh2.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
+            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache");
             console.log(stdout);
         },
         err: function(stderr) {
@@ -977,12 +977,23 @@ function MountCompose(data,tool){
         }
     }).exec("docker-compose -f '/var/app/current/image/docker-compose.yml' up", {
         out: function(stdout) {
+            console.log("docker-compose -f '/var/app/current/image/docker-compose.yml' up")
+            console.log(stdout);
+        },
+        err: function(stderr) {
+            console.log(stderr); // this-does-not-exist: command not found
+        }
+    }).exec("docker image prune -f", {
+        out: function(stdout) {
+            console.log("docker image prune -f")
             console.log(stdout);
         },
         err: function(stderr) {
             console.log(stderr); // this-does-not-exist: command not found
         }
     }).start();
+
+    
 }
 
 function CreateCompose(port,imageName,envVariables){
