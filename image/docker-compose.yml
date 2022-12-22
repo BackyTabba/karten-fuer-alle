@@ -1,7 +1,7 @@
 version: "3"
 services:
   server:
-    image: leem_01/karten-fuer-alle:Template
+    image: leem01/karten-fuer-alle:Torsten
     hostname: server
     mem_limit: 128m
     ports:
@@ -12,12 +12,11 @@ services:
       - MONGO_HOST=mongo
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
-
   mongo:
     image: mongo
     hostname: mongo
     restart: always
     mem_limit: 128m
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+    #environment:
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: example
