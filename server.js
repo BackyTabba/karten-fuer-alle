@@ -936,7 +936,7 @@ function CreateImage(data,tool){
         console.log(err);
     });
     sleep(60000)
-    MountCompose(SSHkey,tool)
+    MountCompose(ssh2,tool)
     //ssh2.start();
     /*.exec("docker-compose -f '/var/app/current/image/docker-compose.yml' build --no-cache", {
         out: function(stdout) {
@@ -954,13 +954,13 @@ function CreateImage(data,tool){
         }
     })*/
 }
-function MountCompose(data,tool){
+function MountCompose(ssh3,tool){
     console.log("Funktionseingang MountImage")
-    var ssh3= new SSH({
+    /*var ssh3= new SSH({
         host: "ec2-3-72-59-56.eu-central-1.compute.amazonaws.com",//'3.72.59.56', //oder ec2-3-72-59-56.eu-central-1.compute.amazonaws.com
         user: "ec2-user",//'ec2-user',
         key: data
-    });
+    });*/
 
     sleep(20000)
     console.log("20 sek , starting docker-compose")
