@@ -821,7 +821,7 @@ function GenerateTool(ENVvariables,tool){ //Welche ENVvariables braucht der Tool
     CreateCompose(port,imagename,ENVvariables);
     sleep(5000)
     CreateImage(SSHkey,tool);
-    MountCompose(SSHkey,tool);//bindCompose under Port (Start) ?
+    //MountCompose(SSHkey,tool);//bindCompose under Port (Start) ?
 }
 
 function CopyFiles(envVariables){
